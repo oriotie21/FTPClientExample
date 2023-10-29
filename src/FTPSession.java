@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Random;
 
 /*
  * README
@@ -42,23 +43,27 @@ public class FTPSession {
     static String CMD_PORT = "PORT";
     static String CMD_RETR = "RETR";
     static String CMD_STOR = "STOR";
+    static String CMD_OPTS = "OPTS";
+
+    static String ENCODE_TYPE = "UTF8 ON";
 
     int PORT_INC_BASE = 19000; //지정할 data port의 시작 번호
     int PORT_INC_CNT = 1; //연결 시 마다 지정할 data port 증가 수 
-
+    int PORT_MAX = 65000; //max is 65535
 
     boolean connected = false;
     TCPSession tcpSession;
     TCPServerSession dataSession = null;
     FileEventListener fileEventListener = null;
+    ErrorCallback errorCallback;
 
 
 
-
-    public FTPSession(String _ip, int _port, ErrorCallback _callback, FileEventListener _listener){
+    public FTPSession(String _ip, int _port, ErrorCallback _errorCallback, FileEventListener _listener){
         
     //연결을 위한 정보 받기
-    tcpSession = new TCPSession(_ip, _port, _callback);
+    tcpSession = new TCPSession(_ip, _port, _errorCallback);
+    errorCallback = _errorCallback;
     fileEventListener = _listener;
 
     }
@@ -86,6 +91,7 @@ public class FTPSession {
         if(tcpSession.getResponse().code == STATUS_NEED_PW){
          tcpSession.sendCmd(CMD_PASS, _password);
          if(tcpSession.getResponse().code == STATUS_LOGIN_SUCCSS){
+            request(CMD_OPTS, ENCODE_TYPE);
             loginSuccess = true;
          }   
         }
@@ -158,14 +164,14 @@ public class FTPSession {
         
 
         //포트 1개 오픈
-        dataSession = new TCPServerSession(dport, outf, fileEventListener);
+        dataSession = new TCPServerSession(dport, outf,errorCallback, fileEventListener);
         dataSession.download();
         //PORT 명령으로 클라이언트 포트 전달
         UserFTPResponse ur = setPort(dport);
         if(ur.code != 200)
             return ur;
         //RETR <fname> 입력
-        UserFTPResponse r = waitForTrasfer(CMD_RETR, fname);
+        UserFTPResponse r = waitForTrasfer(dataSession, CMD_RETR, fname);
         return r;
     }
     UserFTPResponse nlst(/*  */){
@@ -188,10 +194,10 @@ public class FTPSession {
             //업로드 준비
 			File file = new File(fname);
             FileInputStream fis = new FileInputStream(file);
-            dataSession = new TCPServerSession(uport, fis, fileEventListener);
+            dataSession = new TCPServerSession(uport, fis,errorCallback, fileEventListener);
             dataSession.upload();
             //업로드 명령 전송
-            r = waitForTrasfer(CMD_STOR, fname);
+            r = waitForTrasfer(dataSession, CMD_STOR, fname);
             
 
 		} catch (FileNotFoundException e) {
@@ -202,7 +208,7 @@ public class FTPSession {
 
     }
 
-    UserFTPResponse waitForTrasfer(String cmd, String fname){
+    UserFTPResponse waitForTrasfer(TCPServerSession session, String cmd, String fname){
         FTPResponse r = request(cmd, fname);
         if(r.code == 150){
             r = tcpSession.getResponse();
@@ -211,6 +217,7 @@ public class FTPSession {
             *<- 이 사이에서 파일 전송이 이루어짐 ->
             * 파일 다운로드 완료 시 응답코드 리턴
             */
+            session.setEOF(true);
             if(r.code == 226)
                  recvok = true;
             return new UserFTPResponse(recvok, r.code, r.message);
@@ -244,8 +251,10 @@ public class FTPSession {
 
     }
     private int getDataPort(){
-        PORT_INC_CNT++;
-        return PORT_INC_BASE + PORT_INC_CNT;
+        //Random random = new Random();
+        //random.setSeed(System.currentTimeMillis());
+        int randPort = new Random().nextInt(PORT_MAX - PORT_INC_BASE) + PORT_INC_BASE;
+        return randPort;
     }
 
 

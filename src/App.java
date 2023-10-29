@@ -8,16 +8,17 @@ public class App {
     static void test(){
 
         //연결 수립
-        FTPSession session = new FTPSession("172.31.61.110", 21, new ErrorCallback() {
+        FTPSession session = new FTPSession("172.20.153.75", 21, new ErrorCallback() {
             public void onError(Exception e){
                 System.out.println("!!Error!!");
-                System.out.println(e.getStackTrace());
+                //System.out.println(e.getMessage());
             }
         }, new FileEventListener() {
 
             @Override
             public void onProgressChanged(int currentByte) {
                 // TODO 진행도 바뀌었을때
+                
             }
 
             @Override
@@ -33,9 +34,9 @@ public class App {
         //CWD
         String cwd = session.cwd("~/bin");
         //다운로드
-        session.retrieveFile("dogs.jpg", null);
+        session.retrieveFile("sc3.png", null);
         //업로드
-        session.store("dogs.jpg", null);
+        //session.store("dogs.jpg", null);
 
         //진행도 알려주는 기능 -> FileEventListener
         //파일 목록 보여주는거(ls와 유사, 파일크기도 구해야함)
