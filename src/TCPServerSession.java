@@ -13,17 +13,22 @@ public class TCPServerSession extends Thread{
     OutputStream outf = null;
     InputStream inf = null;
     boolean isTransfering = false;
+    boolean eof = false; //command session이 trasfer finished와 관련된 응답을 받았을 때 설정
     FileEventListener fileEventListener;
+    ErrorCallback errorCallback;
+    
 
-    public TCPServerSession(int _port, OutputStream _outf, FileEventListener _listener){
+    public TCPServerSession(int _port, OutputStream _outf,ErrorCallback _errorCallback, FileEventListener _listener){
         port = _port;
         outf = _outf;
+        errorCallback = _errorCallback;
         fileEventListener = _listener;
     }
 
-    public TCPServerSession(int _port, InputStream _inf, FileEventListener _listener){
+    public TCPServerSession(int _port, InputStream _inf, ErrorCallback _errorCallback, FileEventListener _listener){
         port = _port;
         inf = _inf;
+        errorCallback = _errorCallback;
         fileEventListener = _listener;
 
     }
@@ -36,7 +41,7 @@ public class TCPServerSession extends Thread{
         int bytesTotal = 0;
         try{
             isTransfering = true;
-            while(!tcpSock.isConnected() || tcpSock.getInputStream().available() > 0){
+            while(!eof || tcpSock.getInputStream().available() > 0){
             rbytes = tcpSock.getInputStream().read(buf);
             if(rbytes > 0){
                 outf.write(buf, 0, rbytes);
@@ -58,7 +63,7 @@ public class TCPServerSession extends Thread{
             tcpSock.close();
         } catch (IOException e) {
             // TODO Auto-generated catch block
-            e.printStackTrace();
+            errorCallback.onError(e);
         }
     }
     void sendBytes(){
@@ -84,7 +89,7 @@ public class TCPServerSession extends Thread{
             fileEventListener.onProgressFinished();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			errorCallback.onError(e);
 		}
         
 
@@ -98,15 +103,20 @@ public class TCPServerSession extends Thread{
         saveBytesToFile();
         else if(outf == null && inf != null) //매개변수가 InputStream일때
         sendBytes();
+        else
+        System.out.println("something went wrong");
 
     }
     private void listen(){
+        
         try {
             tcpServerSock = new ServerSocket(port);
+            System.out.println("Listening on "+Integer.toString(port));
             tcpSock = tcpServerSock.accept();
+            System.out.println("ftp data connection established");
         } catch (IOException e) {
             // TODO Auto-generated catch block
-            e.printStackTrace();
+            errorCallback.onError(e);
         }
     }
     public void download(){
@@ -114,6 +124,9 @@ public class TCPServerSession extends Thread{
     }
     public void upload(){
         this.start();
+    }
+    public void setEOF(boolean b){
+        eof = b;
     }
     public boolean isTransferFinished(){
         if(tcpSock != null)
