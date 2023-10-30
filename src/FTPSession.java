@@ -27,6 +27,8 @@ import java.util.Random;
  */
 public class FTPSession {
 
+    static final int STATUS_TRANSFER_READY = 150;
+    static final int STATUS_TRANSFER_OK = 226;
     static final int STATUS_CMD_OK = 200;
     static final int STATUS_SERVICE_READY = 220;
     static final int STATUS_ACTION_OK = 250;
@@ -168,7 +170,7 @@ public class FTPSession {
         dataSession.download();
         //PORT 명령으로 클라이언트 포트 전달
         UserFTPResponse ur = setPort(dport);
-        if(ur.code != 200)
+        if(!ur.success)
             return ur;
         //RETR <fname> 입력
         UserFTPResponse r = waitForTrasfer(dataSession, CMD_RETR, fname);
@@ -187,7 +189,7 @@ public class FTPSession {
         int uport = getDataPort();
         UserFTPResponse r;
         r = setPort(uport);
-        if(r.code != 200)
+        if(!r.success)
             return r;
         
 		try {
@@ -210,7 +212,7 @@ public class FTPSession {
 
     UserFTPResponse waitForTrasfer(TCPServerSession session, String cmd, String fname){
         FTPResponse r = request(cmd, fname);
-        if(r.code == 150){
+        if(r.code == STATUS_TRANSFER_READY){
             r = tcpSession.getResponse();
             boolean recvok = false;
             /* 
@@ -218,7 +220,7 @@ public class FTPSession {
             * 파일 다운로드 완료 시 응답코드 리턴
             */
             session.setEOF(true);
-            if(r.code == 226)
+            if(r.code == STATUS_TRANSFER_OK)
                  recvok = true;
             return new UserFTPResponse(recvok, r.code, r.message);
         }else{

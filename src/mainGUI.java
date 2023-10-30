@@ -7,7 +7,7 @@ import java.awt.event.*;
 import java.io.*;
 
 public class mainGUI {
-    public static void main(String[] args) {
+    public static void main2(String[] args) {
         JFrame frame = new JFrame("FTP program");
         JPanel panel = new JPanel();
         JButton upload = new JButton("Upload");
