@@ -360,10 +360,30 @@ public class FTPSession {
     }
 
     private void transmissionErrorHandling(FTPResponse r, String _path, String fname, OutputStream outf, FileEventListener listener) {
-        Scanner scanner = new Scanner(System.in);
-        Method callingMethod = getCallingMethod();
+        String callingMethod = getCallingMethod();
 
         if (r.code == STATUS_CONNECTIONS_CLOSE_TRANSMISSION_STOP) {  //연결이 닫히고 전송이 중단된 경우(전송이 강제 종료된 경우)
+            Scanner scanner = new Scanner(System.in);
+            System.out.println("연결 실패. 다시 연결 하시겠습니까? 하려면 1 , 연결을 종료하려면 0을 입력하세요");
+            int userInput = scanner.nextInt();
+            scanner.close();
+
+            if (userInput == 1) {
+                //다시 연결 후 전송
+                connect();
+
+                switch (callingMethod) {
+                    case "store" -> store(fname, listener);
+                    case "retrieve" -> retrieve(fname, outf, listener);
+                    case "nlst" -> nlst(listener);
+                }
+            } else if (userInput == 0) {
+                quit();
+            } else {
+                System.out.println("잘못된 입력 값입니다.");
+            }
+        } else if (r.code == STATUS_DATA_CONNECTION_FAIL) {  //연결이 닫히고 전송이 중단된 경우(전송이 강제 종료된 경우)
+            Scanner scanner = new Scanner(System.in);
             System.out.println("전송이 중단되었습니다. 다시 시도(전송) 하시겠습니까? 하려면 1 , 연결을 종료하려면 0을 입력하세요");
             int userInput = scanner.nextInt();
             scanner.close();
@@ -372,7 +392,7 @@ public class FTPSession {
                 //다시 연결 후 전송
                 connect();
 
-                switch (callingMethod.getName()) {
+                switch (callingMethod) {
                     case "store" -> store(fname, listener);
                     case "retrieve" -> retrieve(fname, outf, listener);
                     case "nlst" -> nlst(listener);
@@ -385,6 +405,7 @@ public class FTPSession {
         } else if (r.code == STATUS_USING_FILE_FAIL) { // 요청된 파일 동작 실패. 파일 사용할 수 없는 경우(ex. 파일 사용 중)
             System.out.println("해당 파일을 사용할 수 없습니다.");
         } else if (r.code == STATUS_ACTION_FAIL) { //요청된 동작 중단. 처리 중 로컬 오류 발생
+            Scanner scanner = new Scanner(System.in);
             System.out.println("로컬오류가 발생하여 요청된 동작이 중단되었습니다. 다시 시도 하시겠습니까? 하려면 1 , 연결을 종료하려면 0을 입력하세요");
             int userInput = scanner.nextInt();
             scanner.close();
@@ -393,7 +414,7 @@ public class FTPSession {
                 //다시 연결을 해야하나?
 
                 //다시 동작 구현
-                switch (callingMethod.getName()) {
+                switch (callingMethod) {
                     case "cwd" -> cwd(_path);
                     case "store" -> store(fname, listener);
                     case "retrieve" -> retrieve(fname, outf, listener);
@@ -409,6 +430,7 @@ public class FTPSession {
             // 시스템 저장 공간 부족 하다는 알림 후 동작 종료
             System.out.println("저장공간이 부족합니다.");
         } else if (r.code == STATUS_NEED_ACCOUNT_STORE_FILE) {//파일 저장하는데 계정이 필요
+            Scanner scanner = new Scanner(System.in);
             //유효한 사용자 계정으로 로그인할지 or 연결 종료할지 질의
             System.out.println("인증된 계정이 필요합니다. 유효한 사용자 계정으로 로그인 하려면 1, 연결을 종료하려면 0을 입력해 주세요");
             int userInput = scanner.nextInt();
@@ -437,13 +459,13 @@ public class FTPSession {
     }
 
     private void loginErrorHandling(int statusCode) {
-        Scanner scanner = new Scanner(System.in);
         int userInput;
 
         if (statusCode == STATUS_LOGIN_FAIL) {
             System.out.println("로그인에 실패하였습니다. 다시 시도하여 주세요.");
             login(_username, _password);
         } else if (statusCode == STATUS_NEED_ACCOUNT_STORE_FILE) {
+            Scanner scanner = new Scanner(System.in);
             System.out.println("인증된 계정이 필요합니다. 유효한 사용자 계정으로 로그인 하려면 1, 연결을 종료하려면 0을 입력해 주세요");
             userInput = scanner.nextInt();
             scanner.close();
@@ -462,21 +484,11 @@ public class FTPSession {
     }
 
     //자신을 호출한 메소드의 정보를 가져오는 메소드
-    public static Method getCallingMethod() {
+    public static String getCallingMethod() {
         StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
-        if (stackTrace.length >= 3) {
-            String className = stackTrace[3].getClassName();
-            String methodName = stackTrace[3].getMethodName();
-            try {
-                Class<?> callingClass = Class.forName(className);
-                Method callingMethod = callingClass.getDeclaredMethod(methodName);
-                return callingMethod;
-            } catch (ClassNotFoundException | NoSuchMethodException e) {
-                e.printStackTrace();
-                System.out.println("method name : "+methodName);
-            }
-        }
-        return null;
+        String methodName = stackTrace[3].getMethodName();
+
+        return methodName;
     }
     /**
      * 연결 중 나타날 수 있는 에러
