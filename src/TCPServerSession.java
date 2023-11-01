@@ -35,8 +35,8 @@ public class TCPServerSession extends Thread{
         int bytesTotal = 0;
         try{
             isTransfering = true;
-            while(!eof || tcpSock.getInputStream().available() > 0){
-            rbytes = tcpSock.getInputStream().read(buf);
+            while(!eof || getDataSocketInputStream().available() > 0){
+            rbytes = getDataSocketInputStream().read(buf);
             if(rbytes > 0){
                 outf.write(buf, 0, rbytes);
                 bytesTotal += rbytes;
@@ -54,7 +54,7 @@ public class TCPServerSession extends Thread{
         //close stream and socket
         try {
             outf.close();
-            tcpSock.close();
+            closeDataSocket();
         } catch (IOException e) {
             // TODO Auto-generated catch block
             errorCallback.onError(e);
@@ -68,7 +68,7 @@ public class TCPServerSession extends Thread{
             byte[] buf = new byte[512];
             int wbytes = 0;
             int totalBytes = 0;
-			DataOutputStream oStream = new DataOutputStream(tcpSock.getOutputStream());
+			DataOutputStream oStream = new DataOutputStream(getDataSocketOutputStream());
             //inputstream 고갈 전까지 쓰기
             isTransfering = true;
             while(inf.available() > 0){
@@ -79,7 +79,7 @@ public class TCPServerSession extends Thread{
             }
             //소켓 닫아서 FIN 패킷 보내기
             isTransfering = false;
-            tcpSock.close();
+            closeDataSocket();
             fileEventListener.onProgressFinished();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -91,7 +91,7 @@ public class TCPServerSession extends Thread{
 
     public void getDirectoryList() {
         try {
-            InputStream inputStream = tcpSock.getInputStream();
+            InputStream inputStream = getDataSocketInputStream();
             readDirectoryList(inputStream);
 
             // 데이터 소켓 연결 종료
