@@ -12,7 +12,6 @@ public class TCPServerSession extends Thread{
     boolean eof = false; //command session이 trasfer finished와 관련된 응답을 받았을 때 설정
     FileEventListener fileEventListener;
     ErrorCallback errorCallback;
-    String cmd = null;
 
     public TCPServerSession(int _port, OutputStream _outf,ErrorCallback _errorCallback, FileEventListener _listener){
         port = _port;
@@ -21,12 +20,11 @@ public class TCPServerSession extends Thread{
         fileEventListener = _listener;
     }
 
-    public TCPServerSession(int _port, InputStream _inf, String cmd, ErrorCallback _errorCallback, FileEventListener _listener){
+    public TCPServerSession(int _port, InputStream _inf, ErrorCallback _errorCallback, FileEventListener _listener){
         port = _port;
         inf = _inf;
         errorCallback = _errorCallback;
         fileEventListener = _listener;
-        this.cmd = cmd; // 이걸로 store랑 nlst 구별해야함
     }
 
     void saveBytesToFile(){
