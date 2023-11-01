@@ -117,7 +117,10 @@ public class TCPSession {
     private FTPResponse parseResp(String resp) {
         FTPResponse r;
 
-        //resp==null일때 조건 추가(연결 끊김)
+        if(resp==null){ //연결 끊긴 경우
+            r = null;
+            return r;
+        }
 
         boolean startsWithNumber = true;
         for (int i = 0; i < Math.min(3, resp.length()); i++) {
