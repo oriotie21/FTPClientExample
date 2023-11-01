@@ -88,17 +88,6 @@ public class TCPServerSession extends Thread{
 
 
     }
-
-    public void getDirectoryList() {
-        try {
-            InputStream inputStream = getDataSocketInputStream();
-
-            // 데이터 소켓 연결 종료
-            closeDataSocket();
-        } catch (IOException e) {
-            e.printStackTrace(); // 예외 처리: 입출력 오류 발생 시
-        }
-    }
     public void run(){
 
 
@@ -108,8 +97,7 @@ public class TCPServerSession extends Thread{
         else if(outf == null && inf != null) //매개변수가 InputStream일때
         sendBytes();
         else
-        getDirectoryList(); // cmd로 구분해야하는데 일단 이렇게 분기해둬서 수정해야함
-        //System.out.println("something went wrong");
+        System.out.println("something went wrong");
 
     }
     private void listen(){
