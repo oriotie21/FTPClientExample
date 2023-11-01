@@ -55,6 +55,7 @@ public class App {
 
         //연결 수립
         FTPSession session = new FTPSession("172.20.153.75", 21, new ErrorCallback() {
+        //FTPSession session = new FTPSession("172.18.3.85", 21, new ErrorCallback() {
             public void onError(Exception e){
                 System.out.println("!!Error!!");
                 //System.out.println(e.getMessage());
@@ -77,15 +78,20 @@ public class App {
         if(conn){
         //로그인
         session.login("oriotie", "12345678");
+        //session.login("ftpuser", "ftp");
         //CWD
         String cwd = session.cwd("~/bin");
+        //String cwd = session.cwd("");
         //다운로드
         session.retrieveFile("sc3.png", null);
+        //session.retrieveFile("pochacco.png", null);
         //업로드
         //session.store("dogs.jpg", null);
+        //session.store("pochacco.png", null);
 
         //진행도 알려주는 기능 -> FileEventListener
         //파일 목록 보여주는거(ls와 유사, 파일크기도 구해야함)
+        session.nlst(null);
 
         //에러처리(로그인, 경로, 권한, 등등 + 파일 다운받다가 중단됐을때)
         //암호화 요구 시 예외처리(표준에는 없어서 구현 안할예정)
