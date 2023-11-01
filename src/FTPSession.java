@@ -148,6 +148,22 @@ public class FTPSession {
 
     }
 
+    int cd(String _path) {
+        if (!isInputReady())
+            return -1;
+        FTPResponse r = request(CMD_CWD, _path);
+
+        if (r.code == STATUS_ACTION_OK) {
+            return 0; // 폴더
+        } else if(r.code == STATUS_FILE_NOT_USE){
+            return 1; //파일
+        }else {
+            transmissionErrorHandling(r, _path, null, null, null);
+            loginErrorHandling(r.code);
+            return -1;
+        }
+    }
+
     UserFTPResponse setPort(int p) {
         boolean r = true;
         String arg = tcpSession.getMyIP().replace('.', ',');
@@ -221,7 +237,6 @@ public class FTPSession {
         if (!r.success)
             return r;
 
-        //InputStream inf = null
         byte[] output = new byte[512]; // 폴더 및 파일명 저장 inputStream
         ByteArrayOutputStream ous = new ByteArrayOutputStream();
         
@@ -239,9 +254,20 @@ public class FTPSession {
             errorCallback.onError(e);
         }
         System.out.println(outputStr);
-        // 상태코드 r 에러처리
 
-        
+        String[] lines = outputStr.split("\r\n");
+
+        int type;
+        for (String line : lines) {
+            type = cd(line);
+            // type이 0이면 폴더, 1이면 파일
+            if(type == 0){
+                System.out.println("folder");
+                cd("..");
+            }else{
+                System.out.println("file");
+            }
+        }
 
 
         //에러 여부 확인 및 처리
