@@ -60,7 +60,7 @@ public class TCPSession {
         try{
             isTransfering = true;
             outStream.write(content);
-            System.out.println(content);
+            
         }catch(Exception e){
 
         } 
