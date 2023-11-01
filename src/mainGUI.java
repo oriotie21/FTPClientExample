@@ -1,14 +1,15 @@
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
-import javax.swing.*;
-import javax.swing.text.*;
-
-import java.awt.*;
-import java.awt.event.*;
-import java.io.*;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
 
 public class mainGUI {
-    public static void main2(String[] args) {
-        JFrame frame = new JFrame("FTP program");
+	
+	public static void main(String[] args) {
+		// TODO Auto-generated constructor stub
+        JFrame frame = new JFrame("FTP Server-Client");
         JPanel panel = new JPanel();
         JButton upload = new JButton("Upload");
         JButton download = new JButton("Download");
@@ -22,7 +23,7 @@ public class mainGUI {
             @Override
             public void actionPerformed(ActionEvent e) {
                 JFrame upFrame = new JFrame("Upload");
-                upFrame.add(new UploadPanel());
+                upFrame.add(new uploadLoginGUI());
 
             }
         });
@@ -32,7 +33,7 @@ public class mainGUI {
             @Override
             public void actionPerformed(ActionEvent e) {
                 JFrame downFrame = new JFrame("Download");
-                downFrame.add(new DownloadPanel());
+                downFrame.add(new downloadLoginGUI());
 
             }
         });
@@ -41,5 +42,5 @@ public class mainGUI {
         frame.setSize(300, 100);
         frame.setLocationRelativeTo(null);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    }
+	}
 }

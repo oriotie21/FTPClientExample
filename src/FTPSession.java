@@ -238,7 +238,7 @@ public class FTPSession {
             // TODO Auto-generated catch block
             errorCallback.onError(e);
         }
-        System.out.println(""+outputStr+"");
+        System.out.println(outputStr);
         // 상태코드 r 에러처리
 
         
@@ -274,7 +274,7 @@ public class FTPSession {
                 System.out.println("존재하지 않는 파일입니다.");
             }
             FileInputStream fis = new FileInputStream(file);
-            dataSession = new TCPServerSession(uport, fis, "store", errorCallback, fileEventListener);
+            dataSession = new TCPServerSession(uport, fis, errorCallback, fileEventListener);
             dataSession.upload();
             //업로드 명령 전송
             r = waitForTrasfer(dataSession, CMD_STOR, fname);

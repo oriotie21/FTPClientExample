@@ -12,7 +12,6 @@ public class TCPServerSession extends Thread{
     boolean eof = false; //command session이 trasfer finished와 관련된 응답을 받았을 때 설정
     FileEventListener fileEventListener;
     ErrorCallback errorCallback;
-    String cmd = null;
 
     public TCPServerSession(int _port, OutputStream _outf,ErrorCallback _errorCallback, FileEventListener _listener){
         port = _port;
@@ -21,12 +20,11 @@ public class TCPServerSession extends Thread{
         fileEventListener = _listener;
     }
 
-    public TCPServerSession(int _port, InputStream _inf, String cmd, ErrorCallback _errorCallback, FileEventListener _listener){
+    public TCPServerSession(int _port, InputStream _inf, ErrorCallback _errorCallback, FileEventListener _listener){
         port = _port;
         inf = _inf;
         errorCallback = _errorCallback;
         fileEventListener = _listener;
-        this.cmd = cmd; // 이걸로 store랑 nlst 구별해야함
     }
 
     void saveBytesToFile(){
@@ -88,17 +86,6 @@ public class TCPServerSession extends Thread{
 
 
     }
-
-    public void getDirectoryList() {
-        try {
-            InputStream inputStream = getDataSocketInputStream();
-
-            // 데이터 소켓 연결 종료
-            closeDataSocket();
-        } catch (IOException e) {
-            e.printStackTrace(); // 예외 처리: 입출력 오류 발생 시
-        }
-    }
     public void run(){
 
 
@@ -108,8 +95,7 @@ public class TCPServerSession extends Thread{
         else if(outf == null && inf != null) //매개변수가 InputStream일때
         sendBytes();
         else
-        getDirectoryList(); // cmd로 구분해야하는데 일단 이렇게 분기해둬서 수정해야함
-        //System.out.println("something went wrong");
+        System.out.println("something went wrong");
 
     }
     private void listen(){
