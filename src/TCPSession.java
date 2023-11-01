@@ -82,7 +82,7 @@ public class TCPSession {
         String content = "";
         try {
             content = reader.readLine();
-
+            reader = new BufferedReader(new InputStreamReader(tcpSock.getInputStream()));
 
         } catch (IOException e) {
             // TODO Auto-generated catch block
