@@ -1,5 +1,7 @@
 import java.io.*;
 import java.util.Random;
+
+import java.util.stream.Stream;
 import java.lang.reflect.Method;
 import java.util.Scanner;
 
@@ -218,14 +220,36 @@ public class FTPSession {
         if (!r.success)
             return r;
 
-        InputStream inf = null;
-        dataSession = new TCPServerSession(uport, inf, "nlst", errorCallback, fileEventListener);
+        //InputStream inf = null
+        byte[] output = new byte[512];
+        ByteArrayOutputStream ous = new ByteArrayOutputStream();
+        
+        dataSession = new TCPServerSession(uport, ous, errorCallback, fileEventListener);
         dataSession.nlst();
         r = waitForTrasfer(dataSession, CMD_NLST, "");
+
+        
+        output = ous.toByteArray();
+        String outputStr = "*";
+        try {
+            outputStr = new String(output, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            // TODO Auto-generated catch block
+            errorCallback.onError(e);
+        }
+        System.out.println("code : "+r.code+"output : "+outputStr);
+        // 상태코드 r 에러처리
+
+        
+
 
         //에러 여부 확인 및 처리
         transmissionErrorHandling(r, null, null, null, listener);
         loginErrorHandling(r.code);
+
+        //성공시
+        r.code = STATUS_TRANSFER_OK;
+        r.message = outputStr;
         return r;
 
     }

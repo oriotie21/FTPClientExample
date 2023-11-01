@@ -54,7 +54,7 @@ public class App {
     static void test(){
 
         //연결 수립
-        FTPSession session = new FTPSession("172.20.153.75", 21, new ErrorCallback() {
+        FTPSession session = new FTPSession("172.22.71.20", 21, new ErrorCallback() {
         //FTPSession session = new FTPSession("172.18.3.85", 21, new ErrorCallback() {
             public void onError(Exception e){
                 System.out.println("!!Error!!");
@@ -109,7 +109,7 @@ public class App {
     public static void main(String[] args) throws Exception {
         System.out.println("Hello, World!");
         guiMain();
-        //test();
+        test();
     }
 
 
