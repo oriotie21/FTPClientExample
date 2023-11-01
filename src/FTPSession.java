@@ -293,6 +293,7 @@ public class FTPSession {
         if (r.code == STATUS_TRANSFER_READY) {
             r = tcpSession.getResponse();
             if(r==null){ //연결 끊긴 경우 연결 종료
+                System.out.println("전송이 중단되었습니다.");
                 quit();
             }
             boolean recvok = false;
