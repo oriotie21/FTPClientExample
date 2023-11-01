@@ -10,7 +10,7 @@ import javax.swing.JPanel;
 public class App {
 
     void print(String s){
-        System.out.println(s);
+        //System.out.println(s);
     }
 
     static void guiMain(){
@@ -77,10 +77,10 @@ public class App {
         boolean conn = session.connect();
         if(conn){
         //로그인
-        session.login("oriotie", "12345678");
+        session.login("oriotie", "1234567");
         //session.login("ftpuser", "ftp");
         //CWD
-        String cwd = session.cwd("~/aaaaaa");
+        //String cwd = session.cwd("~/aaaaaa");
         //String cwd = session.cwd("");
         //다운로드
         //session.retrieveFile("sc3.png", null);

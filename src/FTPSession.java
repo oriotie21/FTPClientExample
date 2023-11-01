@@ -108,18 +108,18 @@ public class FTPSession {
         this._username = _username;
         this._password = _password;
         boolean loginSuccess = false;
-        tcpSession.sendCmd(CMD_USER, _username);
+        FTPResponse r = request(CMD_USER, _username);
 
-        if (tcpSession.getResponse().code == STATUS_NEED_PW) {
-            tcpSession.sendCmd(CMD_PASS, _password);
-            if (tcpSession.getResponse().code == STATUS_LOGIN_SUCCSS) {
-                request(CMD_OPTS, ENCODE_TYPE);
+        if (r.code == STATUS_NEED_PW) {
+            r = request(CMD_PASS, _password);
+            if (r.code == STATUS_LOGIN_SUCCSS) {
+                request(CMD_OPTS, ENCODE_TYPE); //enable UTF-8 encoding
                 loginSuccess = true;
             } else {
-                loginErrorHandling(tcpSession.getResponse().code); // 에러처리 추가
+                loginErrorHandling(r.code); // 에러처리 추가
             }
         } else {
-            loginErrorHandling(tcpSession.getResponse().code); // 에러처리 추가
+            loginErrorHandling(r.code); // 에러처리 추가
         }
 
         return loginSuccess;
