@@ -296,6 +296,12 @@ public class FTPSession {
              *<- 이 사이에서 파일 전송이 이루어짐 ->
              * 파일 다운로드 완료 시 응답코드 리턴
              */
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+
             session.setEOF(true);
             if (r.code == STATUS_TRANSFER_OK)
                 recvok = true;
