@@ -296,6 +296,12 @@ public class FTPSession {
              *<- 이 사이에서 파일 전송이 이루어짐 ->
              * 파일 다운로드 완료 시 응답코드 리턴
              */
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+
             session.setEOF(true);
             if (r.code == STATUS_TRANSFER_OK)
                 recvok = true;
@@ -450,11 +456,6 @@ public class FTPSession {
             //잘못된 경로 or 존재하지 않는 파일 or 액세스 권한 없다는 알림 후 동작 종료
             
             System.out.println(r.code + ": 잘못된 파일 엑세스");
-            switch (r.message) {
-                case NO_FILE -> System.out.println("존재하지 않는 파일 입니다.");
-                case NO_FILE_OR_FOLDER -> System.out.println("존재하지 않는 파일 또는 디렉토리입니다.");
-                case NO_PERMISSION -> System.out.println("액세스 권한이 없습니다.");
-            }
         }
     }
 
@@ -463,6 +464,8 @@ public class FTPSession {
 
         if (statusCode == STATUS_LOGIN_FAIL) {
             System.out.println("로그인에 실패하였습니다. 다시 시도하여 주세요.");
+            quit();
+            connect();
             login(_username, _password);
         } else if (statusCode == STATUS_NEED_ACCOUNT_STORE_FILE) {
             Scanner scanner = new Scanner(System.in);
