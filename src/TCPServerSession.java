@@ -1,8 +1,4 @@
-import java.io.DataOutputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -16,7 +12,7 @@ public class TCPServerSession extends Thread{
     boolean eof = false; //command session이 trasfer finished와 관련된 응답을 받았을 때 설정
     FileEventListener fileEventListener;
     ErrorCallback errorCallback;
-    
+    String cmd = null;
 
     public TCPServerSession(int _port, OutputStream _outf,ErrorCallback _errorCallback, FileEventListener _listener){
         port = _port;
@@ -25,15 +21,13 @@ public class TCPServerSession extends Thread{
         fileEventListener = _listener;
     }
 
-    public TCPServerSession(int _port, InputStream _inf, ErrorCallback _errorCallback, FileEventListener _listener){
+    public TCPServerSession(int _port, InputStream _inf, String cmd, ErrorCallback _errorCallback, FileEventListener _listener){
         port = _port;
         inf = _inf;
         errorCallback = _errorCallback;
         fileEventListener = _listener;
-
+        this.cmd = cmd; // 이걸로 store랑 nlst 구별해야함
     }
-
-
 
     void saveBytesToFile(){
         byte[] buf= new byte[512];
@@ -49,7 +43,7 @@ public class TCPServerSession extends Thread{
                 fileEventListener.onProgressChanged(bytesTotal);
             }
             }
-            
+
 
         }
         catch(Exception e){
@@ -91,12 +85,23 @@ public class TCPServerSession extends Thread{
 			// TODO Auto-generated catch block
 			errorCallback.onError(e);
 		}
-        
+
 
     }
 
+    public void getDirectoryList() {
+        try {
+            InputStream inputStream = tcpSock.getInputStream();
+            readDirectoryList(inputStream);
+
+            // 데이터 소켓 연결 종료
+            closeDataSocket();
+        } catch (IOException e) {
+            e.printStackTrace(); // 예외 처리: 입출력 오류 발생 시
+        }
+    }
     public void run(){
-        
+
 
         listen();
         if(inf == null && outf != null) //매개변수가 OutputStream일때
@@ -104,11 +109,12 @@ public class TCPServerSession extends Thread{
         else if(outf == null && inf != null) //매개변수가 InputStream일때
         sendBytes();
         else
-        System.out.println("something went wrong");
+        getDirectoryList(); // cmd로 구분해야하는데 일단 이렇게 분기해둬서 수정해야함
+        //System.out.println("something went wrong");
 
     }
     private void listen(){
-        
+
         try {
             tcpServerSock = new ServerSocket(port);
             System.out.println("Listening on "+Integer.toString(port));
@@ -125,6 +131,7 @@ public class TCPServerSession extends Thread{
     public void upload(){
         this.start();
     }
+    public void nlst() { this.start(); }
     public void setEOF(boolean b){
         eof = b;
     }
@@ -132,5 +139,48 @@ public class TCPServerSession extends Thread{
         if(tcpSock != null)
             return tcpSock.isClosed();
         return true;
+    }
+
+
+    // 데이터 소켓의 OutputStream 반환 => tcpSock.getOutputStream() 에러 처리 포함
+    private OutputStream getDataSocketOutputStream() throws IOException {
+        if (tcpSock != null && tcpSock.isConnected()) {
+            return tcpSock.getOutputStream();
+        } else {
+            throw new IOException("Data socket is not connected.");
+        }
+    }
+
+    // 데이터 소켓의 InputStream 반환 => tcpSock.getInputStream() 에러 처리 포함
+    private InputStream getDataSocketInputStream() throws IOException {
+        if (tcpSock != null && tcpSock.isConnected()) {
+            return tcpSock.getInputStream();
+        } else {
+            throw new IOException("Data socket is not connected.");
+        }
+    }
+
+    private void readDirectoryList(InputStream inputStream) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                System.out.println(line); // 폴더 및 파일명 출력
+            }
+        } catch (IOException e) {
+            e.printStackTrace(); // 예외 처리
+        }
+    }
+
+    // 데이터 소켓 닫기 => tcpSock.close() 예외 처리 포함
+    private void closeDataSocket() {
+        try {
+            if (tcpSock != null && tcpSock.isConnected()) {
+                tcpSock.close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace(); // 예외 처리
+        } finally {
+            tcpSock = null; // 메모리 누수 방지
+        }
     }
 }

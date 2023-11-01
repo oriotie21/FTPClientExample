@@ -1,10 +1,4 @@
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.Random;
 
 /*
@@ -46,6 +40,8 @@ public class FTPSession {
     static String CMD_RETR = "RETR";
     static String CMD_STOR = "STOR";
     static String CMD_OPTS = "OPTS";
+    static String CMD_LIST = "LIST";
+    static String CMD_NLST = "NLST";
 
     static String ENCODE_TYPE = "UTF8 ON";
 
@@ -176,9 +172,26 @@ public class FTPSession {
         UserFTPResponse r = waitForTrasfer(dataSession, CMD_RETR, fname);
         return r;
     }
-    UserFTPResponse nlst(/*  */){
-        //TODO : 파일 목록 리스팅하는 기능 구현
-        return null; //임시
+    UserFTPResponse nlst(FileEventListener listener){
+        if (!isInputReady()) {
+            return null;
+        }
+
+        int uport = getDataPort();
+        UserFTPResponse r;
+        r = setPort(uport);
+        if(!r.success)
+            return r;
+
+        InputStream inf = null;
+        dataSession = new TCPServerSession(uport, inf, "nlst", errorCallback, fileEventListener);
+        dataSession.nlst();
+        r = waitForTrasfer(dataSession, CMD_NLST, "");
+
+        // 상태코드 r 에러처리
+
+        return r;
+
     }
     UserFTPResponse store(String fname, FileEventListener listener){
         //입력 대기 
@@ -196,7 +209,7 @@ public class FTPSession {
             //업로드 준비
 			File file = new File(fname);
             FileInputStream fis = new FileInputStream(file);
-            dataSession = new TCPServerSession(uport, fis,errorCallback, fileEventListener);
+            dataSession = new TCPServerSession(uport, fis, "store", errorCallback, fileEventListener);
             dataSession.upload();
             //업로드 명령 전송
             r = waitForTrasfer(dataSession, CMD_STOR, fname);
