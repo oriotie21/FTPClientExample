@@ -222,7 +222,7 @@ public class FTPSession {
             return r;
 
         //InputStream inf = null
-        byte[] output = new byte[512];
+        byte[] output = new byte[512]; // 폴더 및 파일명 저장 inputStream
         ByteArrayOutputStream ous = new ByteArrayOutputStream();
         
         dataSession = new TCPServerSession(uport, ous, errorCallback, fileEventListener);
@@ -238,7 +238,7 @@ public class FTPSession {
             // TODO Auto-generated catch block
             errorCallback.onError(e);
         }
-        System.out.println("code : "+r.code+"output : "+outputStr);
+        System.out.println(""+outputStr+"");
         // 상태코드 r 에러처리
 
         

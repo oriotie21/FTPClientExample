@@ -108,17 +108,20 @@ public class TCPSession {
     
 
     private FTPResponse parseResp(String resp){
-
-        int spIndex = resp.indexOf(ASC_SP);
         FTPResponse r;
-        
-        if (spIndex != -1) {
-            int code = Integer.parseInt(resp.substring(0, spIndex));
 
-            String message= resp.substring(spIndex + 1);
-            
-            r = new FTPResponse(code, message); 
-        
+        boolean startsWithNumber = true;
+        for (int i = 0; i < Math.min(3, resp.length()); i++) {
+            if (!Character.isDigit(resp.charAt(i))) {
+                startsWithNumber = false;
+                break;
+            }
+        }
+
+        if(startsWithNumber){
+            int code = Integer.parseInt(resp.substring(0, 3));
+            String message= resp.substring(3 + 1);
+            r = new FTPResponse(code, message);
         }else{
             r = new FTPResponse(0, "Error");
         }
