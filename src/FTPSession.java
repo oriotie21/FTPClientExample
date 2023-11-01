@@ -292,6 +292,9 @@ public class FTPSession {
         FTPResponse r = request(cmd, fname);
         if (r.code == STATUS_TRANSFER_READY) {
             r = tcpSession.getResponse();
+            if(r==null){ //연결 끊긴 경우 연결 종료
+                quit();
+            }
             boolean recvok = false;
             /*
              *<- 이 사이에서 파일 전송이 이루어짐 ->
