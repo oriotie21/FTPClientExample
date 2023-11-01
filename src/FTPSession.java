@@ -87,11 +87,11 @@ public class FTPSession {
 
     boolean connect() {
         //연결
-        tcpSession.connect();
-        if (tcpSession == null) {
-            //Raise Connection Failed Error;
-
+        if(!tcpSession.connect()){
+            System.out.println("유효하지 않은 호스트입니다.");
+            return false;
         }
+
         //응답받기
         int code = tcpSession.getResponse().code;
         //성공 여부 반환
