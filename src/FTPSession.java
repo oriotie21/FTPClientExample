@@ -270,6 +270,9 @@ public class FTPSession {
         try {
             //업로드 준비
             File file = new File(fname);
+            if(!file.exists()){
+                System.out.println("존재하지 않는 파일입니다.");
+            }
             FileInputStream fis = new FileInputStream(file);
             dataSession = new TCPServerSession(uport, fis, "store", errorCallback, fileEventListener);
             dataSession.upload();
@@ -281,8 +284,6 @@ public class FTPSession {
             // 에러 확인 및 처리
             transmissionErrorHandling(r, null, fname, null, listener);
             loginErrorHandling(r.code);
-            // TODO Auto-generated catch block
-            e.printStackTrace();
         }
         return r;
     }
