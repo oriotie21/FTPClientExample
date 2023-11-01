@@ -92,7 +92,6 @@ public class TCPServerSession extends Thread{
     public void getDirectoryList() {
         try {
             InputStream inputStream = getDataSocketInputStream();
-            readDirectoryList(inputStream);
 
             // 데이터 소켓 연결 종료
             closeDataSocket();
@@ -157,17 +156,6 @@ public class TCPServerSession extends Thread{
             return tcpSock.getInputStream();
         } else {
             throw new IOException("Data socket is not connected.");
-        }
-    }
-
-    private void readDirectoryList(InputStream inputStream) {
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                System.out.println(line); // 폴더 및 파일명 출력
-            }
-        } catch (IOException e) {
-            e.printStackTrace(); // 예외 처리
         }
     }
 
