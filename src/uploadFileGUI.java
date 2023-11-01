@@ -1,4 +1,3 @@
-package GUI1;
 import javax.swing.*;
 import javax.swing.text.*;
 

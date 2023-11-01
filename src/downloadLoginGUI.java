@@ -1,5 +1,3 @@
-package GUI1;
-
 import javax.swing.*;
 import javax.swing.text.*;
 
@@ -88,6 +86,5 @@ public class downloadLoginGUI extends JPanel{
 				downFrame.setVisible(true);
 				downFrame.setSize(400, 200);
 				downFrame.setLocationRelativeTo(null);
-				downFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 }

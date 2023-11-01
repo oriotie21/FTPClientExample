@@ -1,5 +1,3 @@
-package GUI1;
-
 import javax.swing.*;
 import javax.swing.text.*;
 
@@ -88,6 +86,5 @@ public class uploadLoginGUI extends JPanel{
 				upFrame.setVisible(true);
 				upFrame.setSize(400, 200);
 				upFrame.setLocationRelativeTo(null);
-				upFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 }

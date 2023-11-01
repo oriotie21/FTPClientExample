@@ -1,5 +1,3 @@
-package GUI1;
-
 import javax.swing.*;
 import javax.swing.text.*;
 
@@ -22,8 +20,6 @@ public class downloadFileGUI extends JPanel {
 		downChoDirecText.disable();
 		
 		JButton downloadBtn = new JButton("Downlaod");
-		// 프로그레스 바
-		JProgressBar downloadBar = new JProgressBar(JProgressBar.HORIZONTAL, 0, 100);
 
 		downloadPath.setBounds(10, 10, 100, 20);
 		downloadPathText.setBounds(100, 10, 180, 20);
@@ -34,7 +30,6 @@ public class downloadFileGUI extends JPanel {
 		downChoDirecBtn.setBounds(300, 40, 80, 20);
 
 		downloadBtn.setBounds(155, 100, 100, 25);
-		downloadBar.setBounds(10, 130, 365, 40);
 		
 		downFileFrame.add(downFilePanel);
 		downFilePanel.setLayout(null);
@@ -48,7 +43,6 @@ public class downloadFileGUI extends JPanel {
 		downFilePanel.add(downChoDirecBtn);
 
 		downFilePanel.add(downloadBtn);
-		downFilePanel.add(downloadBar);
 		
 		// 업로드할 서버 디렉토리 선택
 		downloadPathBtn.addActionListener(new ActionListener() {
@@ -78,8 +72,7 @@ public class downloadFileGUI extends JPanel {
 					// Set the file name and path in the upDire JTextArea
 					downChoDirecText.setText(selectedFilePath + selectedFileName);
 				} else {
-					JOptionPane.showMessageDialog(null, "Load canceled", "Load canceled",
-							JOptionPane.INFORMATION_MESSAGE);
+					JOptionPane.showMessageDialog(null, "Load canceled", "Load canceled",JOptionPane.INFORMATION_MESSAGE);
 				}
 			}
 		});
@@ -89,41 +82,17 @@ public class downloadFileGUI extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
-				// 다운로드 버튼 누르면 버튼 비활성화 이후 다운로드 완료시 다시 활성화
+				// 다운로드 버튼 누르면 버튼 비활성화 이후 업로드 완료시 다시 활성화
 				downloadBtn.setEnabled(false);
-				SwingWorker<Void, Integer> worker = new SwingWorker<Void, Integer>() {
-					@Override
-					protected Void doInBackground() throws Exception {
-						// Simulate a task
-						for (int i = 0; i <= 100; i++) {
-							Thread.sleep(100); // Simulate some work
-							publish(i); // Update the progress
-						}
-						// 다운로드 완료시 다운로드 버튼 다시 활성화
-	                    SwingUtilities.invokeLater(new Runnable() {
-	                        @Override
-	                        public void run() {
-	                            downloadBtn.setEnabled(true);
-	                        }
-	                    });
-						return null;
-					}
-					@Override
-					protected void process(java.util.List<Integer> chunks) {
-						int latestValue = chunks.get(chunks.size() - 1);
-						downloadBar.setValue(latestValue);
-					}
-					@Override
-					protected void done() {
-						downloadBar.setValue(100); // Ensure the progress reaches 100% when the task is done
-					}
-				};
-				worker.execute();	
+				
+				//실행... 프로그래스 바 새창 열기
+				JFrame progBar = new JFrame();
+				progBar.add(new progressBarGUI(downloadBtn));
+
 			}
 		});
 		downFileFrame.setVisible(true);
 		downFileFrame.setSize(400, 220);
 		downFileFrame.setLocationRelativeTo(null);
-		downFileFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 }
