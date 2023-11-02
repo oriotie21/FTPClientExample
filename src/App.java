@@ -83,11 +83,13 @@ public class App {
 				// 로그인 실패시 에러 메세지 후 텍스트창 비우기
                 if(checkLogin == 0){
                     JOptionPane.showMessageDialog(null, "Login Fail", "Login Fail", JOptionPane.ERROR_MESSAGE);
-                    hostText.setText(null);
-                    portText.setText(null);
                     userText.setText(null);
                     pwText.setText(null);
-                }
+                } else if (checkLogin==-1) {
+					JOptionPane.showMessageDialog(null, "Connection Fail", "Connection Fail", JOptionPane.ERROR_MESSAGE);
+					hostText.setText(null);
+					portText.setText(null);
+				}
 
 				// 로그인 성공시
 				// 로그인 성공시 서버 접속 함수 불러오기
@@ -169,7 +171,7 @@ public class App {
             return 1;
         }else{
             System.out.println("conn failed");
-            return 0;
+            return -1;
         }
 
     }
