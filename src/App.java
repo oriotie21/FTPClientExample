@@ -31,6 +31,7 @@ public class App {
 		JTextArea pwText = new JTextArea(1, 100);
 
 		JButton loginBtn = new JButton("Login");
+		loginFrame.getRootPane().setDefaultButton(loginBtn);
 
 		loginFrame.add(loginPanel);
 		loginPanel.setLayout(null);
