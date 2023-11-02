@@ -4,6 +4,7 @@ import java.util.Random;
 import java.util.stream.Stream;
 import java.lang.reflect.Method;
 import java.util.Scanner;
+import java.util.concurrent.CompletableFuture;
 
 /*
  * README
@@ -219,7 +220,10 @@ public class FTPSession {
         if (!ur.success)
             return ur;
         //RETR <fname> 입력
-        UserFTPResponse r = waitForTrasfer(dataSession, CMD_RETR, fname);
+        UserFTPResponse r;
+        CompletableFuture<UserFTPResponse> future = CompletableFuture.supplyAsync(() -> waitForTrasfer(dataSession, CMD_RETR, fname));
+        r = future.join();
+
         //에러 여부 확인 및 처리
         transmissionErrorHandling(r, null, fname, outf, listener);
         loginErrorHandling(r.code);
@@ -242,7 +246,9 @@ public class FTPSession {
         
         dataSession = new TCPServerSession(uport, ous, errorCallback, fileEventListener);
         dataSession.nlst();
-        r = waitForTrasfer(dataSession, CMD_NLST, "");
+        CompletableFuture<UserFTPResponse> future = CompletableFuture.supplyAsync(() -> waitForTrasfer(dataSession, CMD_NLST, ""));
+        r = future.join();
+
 
         
         output = ous.toByteArray();
@@ -303,7 +309,10 @@ public class FTPSession {
             dataSession = new TCPServerSession(uport, fis, errorCallback, fileEventListener);
             dataSession.upload();
             //업로드 명령 전송
-            r = waitForTrasfer(dataSession, CMD_STOR, fname);
+            //r = waitForTrasfer(dataSession, CMD_STOR, fname);
+            CompletableFuture<UserFTPResponse> future = CompletableFuture.supplyAsync(() -> waitForTrasfer(dataSession, CMD_STOR, fname));
+            r = future.join();
+
             transmissionErrorHandling(r, null, fname, null, listener);
             loginErrorHandling(r.code);
         } catch (FileNotFoundException e) {
@@ -327,12 +336,6 @@ public class FTPSession {
              *<- 이 사이에서 파일 전송이 이루어짐 ->
              * 파일 다운로드 완료 시 응답코드 리턴
              */
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-
             session.setEOF(true);
             if (r.code == STATUS_TRANSFER_OK)
                 recvok = true;
