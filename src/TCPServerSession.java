@@ -48,7 +48,8 @@ public class TCPServerSession extends Thread{
 
         }
         isTransfering = false;
-        fileEventListener.onProgressFinished();
+        if(fileEventListener != null)
+            fileEventListener.onProgressFinished();
         //close stream and socket
         try {
             outf.close();
@@ -73,7 +74,8 @@ public class TCPServerSession extends Thread{
             wbytes = inf.read(buf);
             oStream.write(buf, 0, wbytes);
             totalBytes += wbytes;
-            fileEventListener.onProgressChanged(totalBytes);
+            if(fileEventListener != null)
+                fileEventListener.onProgressChanged(totalBytes);
             }
             //소켓 닫아서 FIN 패킷 보내기
             isTransfering = false;

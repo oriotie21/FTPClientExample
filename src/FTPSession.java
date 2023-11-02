@@ -47,7 +47,7 @@ public class FTPSession {
     static final int STATUS_NEED_PW = 331;
     static final int STATUS_TIMEOUT = 421;
     static final int STATUS_GOODBYE = 221;
-
+    static final int STATUS_FILE_STAT = 213;
 
     static String CMD_CWD = "CWD";
     static String CMD_PASS = "PASS";
@@ -226,7 +226,7 @@ public class FTPSession {
         return r;
     }
 
-    UserFTPResponse nlst(FileEventListener listener) {
+    UserFTPResponse nlst() {
         if (!isInputReady()) {
             return null;
         }
@@ -271,10 +271,11 @@ public class FTPSession {
 
 
         //에러 여부 확인 및 처리
-        transmissionErrorHandling(r, null, null, null, listener);
+        transmissionErrorHandling(r, null, null, null, null);
         loginErrorHandling(r.code);
 
         //성공시
+        r.success = true;
         r.code = STATUS_TRANSFER_OK;
         r.message = outputStr;
         return r;
@@ -412,7 +413,7 @@ public class FTPSession {
                 switch (callingMethod) {
                     case "store" -> store(fname, listener);
                     case "retrieve" -> retrieve(fname, outf, listener);
-                    case "nlst" -> nlst(listener);
+                    case "nlst" -> nlst();
                 }
             } else if (userInput == 0) {
                 quit();
@@ -432,7 +433,7 @@ public class FTPSession {
                 switch (callingMethod) {
                     case "store" -> store(fname, listener);
                     case "retrieve" -> retrieve(fname, outf, listener);
-                    case "nlst" -> nlst(listener);
+                    case "nlst" -> nlst();
                 }
             } else if (userInput == 0) {
                 quit();
@@ -455,7 +456,7 @@ public class FTPSession {
                     case "cwd" -> cwd(_path);
                     case "store" -> store(fname, listener);
                     case "retrieve" -> retrieve(fname, outf, listener);
-                    case "nlst" -> nlst(listener);
+                    case "nlst" -> nlst();
                 }
             } else if (userInput == 0) {
                 //연결 종료 구현
