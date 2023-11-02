@@ -1,12 +1,10 @@
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.HashSet;
+import java.util.Set;
 
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JTextArea;
+import javax.swing.*;
 
 
 public class App {
@@ -65,6 +63,11 @@ public class App {
 
 		loginPanel.add(loginBtn);
 
+		setFocusTraversalKeys(hostText, portText);
+		setFocusTraversalKeys(portText, userText);
+		setFocusTraversalKeys(userText, pwText);
+		setFocusTraversalKeys(pwText, loginBtn);
+		
 		loginBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -102,6 +105,15 @@ public class App {
 		loginFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
     }
+	private static void setFocusTraversalKeys(JComponent fromComponent, JComponent toComponent) {
+		Set<AWTKeyStroke> forwardKeys = new HashSet<>(fromComponent.getFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS));
+		forwardKeys.add(KeyStroke.getKeyStroke("TAB"));
+		fromComponent.setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, forwardKeys);
+
+		Set<AWTKeyStroke> backwardKeys = new HashSet<>(toComponent.getFocusTraversalKeys(KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS));
+		backwardKeys.add(KeyStroke.getKeyStroke("shift TAB"));
+		toComponent.setFocusTraversalKeys(KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS, backwardKeys);
+	}
     
     static int test(String host, String sport, String userid, String pw){
         // string으로 받아온 sport번호를 integer로 형변환
