@@ -118,11 +118,9 @@ public class FTPSession {
                 loginSuccess = true;
             } else {
                 loginErrorHandling(r.code); // 에러처리 추가
-                return false;
             }
         } else {
             loginErrorHandling(r.code); // 에러처리 추가
-            return false;
         }
 
         return loginSuccess;
@@ -503,7 +501,7 @@ public class FTPSession {
             System.out.println("로그인에 실패하였습니다. 다시 시도하여 주세요.");
             quit();
             connect();
-            //login(_username, _password);
+            login(_username, _password);
         } else if (statusCode == STATUS_NEED_ACCOUNT_STORE_FILE) {
             Scanner scanner = new Scanner(System.in);
             System.out.println("인증된 계정이 필요합니다. 유효한 사용자 계정으로 로그인 하려면 1, 연결을 종료하려면 0을 입력해 주세요");
@@ -513,7 +511,7 @@ public class FTPSession {
             if (userInput == 1) {
                 //연결 종료 후 다시 로그인 시도
                 quit();
-                //login(_username, _password);
+                login(_username, _password);
             } else if (userInput == 0) {
                 //연결 종료 구현
                 quit();
