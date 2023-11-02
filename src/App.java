@@ -92,10 +92,11 @@ public class App {
 				// 로그인 성공시
 				// 로그인 성공시 서버 접속 함수 불러오기
 				// connectToServer();
-
-				// 로그인 성공시 uploadFileGUI 호출
-				JFrame selectUpDownload = new JFrame("Select Load");
-				selectUpDownload.add(new selectUpDownloadGUI());
+				else {
+					// 로그인 성공시 uploadFileGUI 호출
+					JFrame selectUpDownload = new JFrame("Select Load");
+					selectUpDownload.add(new selectUpDownloadGUI());
+				}
 			}
 		});
 
@@ -143,7 +144,9 @@ public class App {
         boolean conn = session.connect();
         if(conn){
             //로그인
-            session.login(userid, pw);
+			if(!session.login(userid, pw)){
+				return 0;
+			}
             //session.login("ftpuser", "ftp");
             //CWD
             //String cwd = session.cwd("~/aaaaaa");
@@ -157,7 +160,7 @@ public class App {
 
             //진행도 알려주는 기능 -> FileEventListener
             //파일 목록 보여주는거(ls와 유사, 파일크기도 구해야함)
-            session.nlst(null);
+            session.nlst();
             //에러처리(로그인, 경로, 권한, 등등 + 파일 다운받다가 중단됐을때)
             //암호화 요구 시 예외처리(표준에는 없어서 구현 안할예정)
             //익명계정 로그인(교수님 테스트 대비)
