@@ -4,9 +4,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-
 
 
 interface ErrorCallback {
@@ -14,7 +14,7 @@ interface ErrorCallback {
 }
 
 public class TCPSession {
-    
+
     String ASC_SP = " ";
     String ASC_CR = "\r";
     String ASC_LF = "\n";
@@ -22,7 +22,7 @@ public class TCPSession {
     String ip;
     String hostIP = "";
     int port;
-    
+
     private Socket tcpSock;
     private DataOutputStream outStream;
     private BufferedReader reader;
@@ -30,71 +30,78 @@ public class TCPSession {
 
     ErrorCallback callBack;
 
-    public TCPSession(String _ip, int _port, ErrorCallback _callBack){
+    public TCPSession(String _ip, int _port, ErrorCallback _callBack) {
         ip = _ip;
         port = _port;
         callBack = _callBack;
     }
+
     //sendRaw
-    void connect(){
-        try{
-        tcpSock = new Socket(ip, port);
-        reader = new BufferedReader(new InputStreamReader(tcpSock.getInputStream()));
-        outStream = new DataOutputStream(tcpSock.getOutputStream());
-        hostIP = tcpSock.getLocalAddress().getHostAddress();
+    boolean connect() {
+        try {
+            tcpSock = new Socket();
+            tcpSock.connect(new InetSocketAddress(ip, port), 1000); //timeout을 1초로 설정 -> 연결 재시도를 계속 하는 것이 아니라 1초의 제한을 두는 것임
+            reader = new BufferedReader(new InputStreamReader(tcpSock.getInputStream()));
+            outStream = new DataOutputStream(tcpSock.getOutputStream());
+            hostIP = tcpSock.getLocalAddress().getHostAddress();
+            return true;
         } //소켓 연결 시도 후 실패하면 
-        catch(Exception e){
-            callBack.onError(e);
+        catch (Exception e) {
+            return false;
         }
-
-
     }
-    void sendCmd(String cmd, String arg){
-        
+
+    void sendCmd(String cmd, String arg) {
+
         String content = cmd + ASC_SP + arg + ASC_CR + ASC_LF; //cmd와 arg 사이에는 <SP>로 구분을 해야함, 명령어 끝은 <CLRF>로 구분
         sendRaw(content.getBytes());
-    
-        
+
+
     }
-    void sendRaw(byte[] content){
-        try{
+
+    void sendRaw(byte[] content) {
+        try {
             isTransfering = true;
             outStream.write(content);
-            
-        }catch(Exception e){
 
-        } 
+        } catch (Exception e) {
+
+        }
         isTransfering = false;
     }
-    void asyncSendRaw(byte[] content){
-        Thread sendThread = new Thread(){
-            public void run(){
+
+    void asyncSendRaw(byte[] content) {
+        Thread sendThread = new Thread() {
+            public void run() {
                 sendRaw(content);
             }
         };
     }
-    FTPResponse getResponse(){
+
+    FTPResponse getResponse() {
         String content = "";
         try {
             content = reader.readLine();
-            
+            reader = new BufferedReader(new InputStreamReader(tcpSock.getInputStream()));
 
         } catch (IOException e) {
             // TODO Auto-generated catch block
             callBack.onError(e);
         }
         FTPResponse r = parseResp(content);
-        return r;  
+        return r;
     }
 
-    boolean isAlive(){
+    boolean isAlive() {
         return tcpSock.isConnected();
     }
-    boolean isTransfering(){
+
+    boolean isTransfering() {
         return isTransfering;
     }
-    void disconnect(){
-        if(tcpSock.isConnected()){
+
+    void disconnect() {
+        if (tcpSock.isConnected()) {
             try {
                 tcpSock.close();
             } catch (IOException e) {
@@ -105,10 +112,15 @@ public class TCPSession {
             reader = null;
         }
     }
-    
 
-    private FTPResponse parseResp(String resp){
+
+    private FTPResponse parseResp(String resp) {
         FTPResponse r;
+
+        if(resp==null){ //연결 끊긴 경우
+            r = null;
+            return r;
+        }
 
         boolean startsWithNumber = true;
         for (int i = 0; i < Math.min(3, resp.length()); i++) {
@@ -118,23 +130,26 @@ public class TCPSession {
             }
         }
 
-        if(startsWithNumber){
+        if (startsWithNumber) {
             int code = Integer.parseInt(resp.substring(0, 3));
-            String message= resp.substring(3 + 1);
+            String message = resp.substring(3 + 1);
             r = new FTPResponse(code, message);
-        }else{
+        } else {
             r = new FTPResponse(0, "Error");
         }
-        
+
         return r;
     }
-    public String getMyIP(){
+
+    public String getMyIP() {
         return hostIP;
     }
-    public String getIP(){
+
+    public String getIP() {
         return ip;
     }
-    public int getPort(){
+
+    public int getPort() {
         return port;
     }
 }

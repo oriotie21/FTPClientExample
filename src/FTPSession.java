@@ -87,11 +87,11 @@ public class FTPSession {
 
     boolean connect() {
         //연결
-        tcpSession.connect();
-        if (tcpSession == null) {
-            //Raise Connection Failed Error;
-
+        if(!tcpSession.connect()){
+            System.out.println("유효하지 않은 호스트입니다.");
+            return false;
         }
+
         //응답받기
         int code = tcpSession.getResponse().code;
         //성공 여부 반환
@@ -146,6 +146,22 @@ public class FTPSession {
         tcpSession.getResponse();
         connected = false;
 
+    }
+
+    int cd(String _path) {
+        if (!isInputReady())
+            return -1;
+        FTPResponse r = request(CMD_CWD, _path);
+
+        if (r.code == STATUS_ACTION_OK) {
+            return 0; // 폴더
+        } else if(r.code == STATUS_FILE_NOT_USE){
+            return 1; //파일
+        }else {
+            transmissionErrorHandling(r, _path, null, null, null);
+            loginErrorHandling(r.code);
+            return -1;
+        }
     }
 
     UserFTPResponse setPort(int p) {
@@ -221,7 +237,6 @@ public class FTPSession {
         if (!r.success)
             return r;
 
-        //InputStream inf = null
         byte[] output = new byte[512]; // 폴더 및 파일명 저장 inputStream
         ByteArrayOutputStream ous = new ByteArrayOutputStream();
         
@@ -239,9 +254,20 @@ public class FTPSession {
             errorCallback.onError(e);
         }
         System.out.println(outputStr);
-        // 상태코드 r 에러처리
 
-        
+        String[] lines = outputStr.split("\r\n");
+
+        int type;
+        for (String line : lines) {
+            type = cd(line);
+            // type이 0이면 폴더, 1이면 파일
+            if(type == 0){
+                System.out.println("folder");
+                cd("..");
+            }else{
+                System.out.println("file");
+            }
+        }
 
 
         //에러 여부 확인 및 처리
@@ -270,6 +296,9 @@ public class FTPSession {
         try {
             //업로드 준비
             File file = new File(fname);
+            if(!file.exists()){
+                System.out.println("존재하지 않는 파일입니다.");
+            }
             FileInputStream fis = new FileInputStream(file);
             dataSession = new TCPServerSession(uport, fis, errorCallback, fileEventListener);
             dataSession.upload();
@@ -281,8 +310,6 @@ public class FTPSession {
             // 에러 확인 및 처리
             transmissionErrorHandling(r, null, fname, null, listener);
             loginErrorHandling(r.code);
-            // TODO Auto-generated catch block
-            e.printStackTrace();
         }
         return r;
     }
@@ -291,6 +318,10 @@ public class FTPSession {
         FTPResponse r = request(cmd, fname);
         if (r.code == STATUS_TRANSFER_READY) {
             r = tcpSession.getResponse();
+            if(r==null){ //연결 끊긴 경우 연결 종료
+                System.out.println("전송이 중단되었습니다.");
+                quit();
+            }
             boolean recvok = false;
             /*
              *<- 이 사이에서 파일 전송이 이루어짐 ->
