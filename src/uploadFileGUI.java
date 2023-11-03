@@ -88,9 +88,12 @@ public class uploadFileGUI extends JPanel {
 				// 업로드 버튼 누르면 버튼 비활성화 이후 업로드 완료시 다시 활성화
 				uploadBtn.setEnabled(false);
 				
+<<<<<<< Updated upstream
 				//실행... 프로그래스 바 새창 열기
 				JFrame progBar = new JFrame();
 				progBar.add(new progressBarGUI(uploadBtn));
+=======
+>>>>>>> Stashed changes
 				
 			}
 		});
