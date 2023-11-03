@@ -38,9 +38,11 @@ public class FTPSession {
     static final String NO_FILE = "No such file";
     static final String NO_FILE_OR_FOLDER = "No such file or folder";
     static final String NO_PERMISSION = "Permission Denied";
+    
 
     static final int STATUS_TRANSFER_READY = 150;
     static final int STATUS_TRANSFER_OK = 226;
+    static final int STATUS_FILENAME_OK = 257;
     static final int STATUS_CMD_OK = 200;
     static final int STATUS_SERVICE_READY = 220;
     static final int STATUS_ACTION_OK = 250;
@@ -60,6 +62,7 @@ public class FTPSession {
     static String CMD_OPTS = "OPTS";
     static String CMD_LIST = "LIST";
     static String CMD_NLST = "NLST";
+    static String CMD_PWD = "PWD";
 
     static String ENCODE_TYPE = "UTF8 ON";
 
@@ -165,6 +168,19 @@ public class FTPSession {
             loginErrorHandling(r.code);
             return -1;
         }
+    }
+    UserFTPResponse pwd(){
+        if(!isInputReady())
+            return null;
+        UserFTPResponse result;
+        FTPResponse r = request(CMD_PWD, "");
+        if(r.code != STATUS_FILENAME_OK){
+            result = new UserFTPResponse(false, r.code, r.message);
+            return result;
+        }
+        String path = r.message.split("\"")[1];
+        result = new UserFTPResponse(true, r.code, path);
+        return result;
     }
 
     UserFTPResponse setPort(int p) {
