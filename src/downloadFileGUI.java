@@ -112,24 +112,20 @@ public class downloadFileGUI extends JPanel {
 							public void onProgressFinished() {
 								// 파일 다운로드 완료 후의 처리
 								// 여기에 완료 후 동작을 추가할 수 있습니다.
+
+								// 업로드를 백그라운드 스레드로 실행
+								// 파일 cwd로 복사
+								Path source = Paths.get(filePath); // 다운로드한 파일의 경로를 Path로 변환
+								Path dest = Paths.get(downLoadFilePath).resolve(source.getFileName()); // 복사 대상 파일의 경로를 downLoadFilePath로 설정
+								fileCopy(filePath, dest.toString());
+								System.out.println("파일 다운로드 및 복사 성공");
 							}
 						});
 
 						if (downloadResponse != null && downloadResponse.success) {
-							// 파일 다운로드 성공한 경우, 복사 작업 수행
-							Path source = Paths.get(filePath); // 다운로드한 파일의 경로를 Path로 변환
-							Path dest = Paths.get(downLoadFilePath).resolve(source.getFileName()); // 복사 대상 파일의 경로를 downLoadFilePath로 설정
-							try {
-								Files.copy(source, dest, StandardCopyOption.REPLACE_EXISTING);
-
-								// 복사 성공 메시지 출력
-								JOptionPane.showMessageDialog(null, "Download Succes", "Download Succes",
+							// 복사 성공 메시지 출력
+							JOptionPane.showMessageDialog(null, "Download Success", "Download Success",
 							JOptionPane.INFORMATION_MESSAGE);
-								System.out.println("파일 다운로드 및 복사 성공");
-							} catch (IOException ex) {
-								// 복사 실패 시 예외 처리
-								System.out.println("파일 복사 실패: " + ex.getMessage());
-							}
 						} else {
 							// 파일 다운로드 실패 메시지 출력
 							JOptionPane.showMessageDialog(null, "Download Fail", "Download Fail",
@@ -148,5 +144,24 @@ public class downloadFileGUI extends JPanel {
 		downFileFrame.setVisible(true);
 		downFileFrame.setSize(400, 220);
 		downFileFrame.setLocationRelativeTo(null);
+	}
+	public static boolean fileCopy(String inFilePath, String outFilePath) {
+		try {
+			FileInputStream infile = new FileInputStream(inFilePath);
+			FileOutputStream outfile = new FileOutputStream(outFilePath);
+
+			byte[] b = new byte[1024];
+			int len;
+			while ((len = infile.read(b, 0, 1024)) > 0) {
+				outfile.write(b, 0, len);
+			}
+			infile.close();
+			outfile.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+
+		return true;
 	}
 }
