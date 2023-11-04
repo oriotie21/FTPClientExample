@@ -232,7 +232,7 @@ public class FTPSession {
         int dport = getDataPort();
 
         //포트 1개 오픈
-        dataSession = new TCPServerSession(dport, outf, errorCallback, fileEventListener);
+        dataSession = new TCPServerSession(dport, outf, errorCallback, listener);
         dataSession.download();
         //PORT 명령으로 클라이언트 포트 전달
         UserFTPResponse ur = setPort(dport);

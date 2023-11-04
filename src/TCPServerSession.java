@@ -42,7 +42,7 @@ public class TCPServerSession extends Thread{
             }
             }
             System.out.println("file written : "+bytesTotal+"bytes");
-
+            fileEventListener.onProgressFinished();
 
         }
         catch(Exception e){

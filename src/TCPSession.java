@@ -81,8 +81,10 @@ public class TCPSession {
     FTPResponse getResponse() {
         String content = "";
         try {
+            do{
             content = reader.readLine();
-            reader = new BufferedReader(new InputStreamReader(tcpSock.getInputStream()));
+            //reader = new BufferedReader(new InputStreamReader(tcpSock.getInputStream()));
+            }while(content.length() >= 4 && Common.isNumeric(content.substring(0, 4))); //앞 3자리가 숫자가 아니면 그냥 넘김
 
         } catch (IOException e) {
             // TODO Auto-generated catch block
@@ -99,6 +101,7 @@ public class TCPSession {
     boolean isTransfering() {
         return isTransfering;
     }
+
 
     void disconnect() {
         if (tcpSock.isConnected()) {
