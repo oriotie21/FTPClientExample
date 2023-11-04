@@ -103,7 +103,7 @@ public class uploadFileGUI extends JPanel {
                     // 파일 cwd로 복사
                     Path source = Paths.get(upLoadFilePath);
                     upLoadFileName = String.valueOf(source.getFileName());
-                    Path dest = Paths.get(".").resolve(source.getFileName());
+                    Path dest = Paths.get(".").resolve(upLoadFileName);
                     fileCopy(upLoadFilePath, dest.toString());
                     System.out.println(dest.toString());
 
