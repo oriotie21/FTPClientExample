@@ -10,9 +10,8 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
 public class downloadFileGUI extends JPanel {
-	String downLoadFilePath = null;
-
-
+	String filePath = null; //다운받으려는 파일이 있는곳
+	String downLoadFilePath = null; // 파일을 다운받으려고 하는 경로
 
 	public downloadFileGUI() {
 		FTPSession session = App.session;
@@ -55,10 +54,6 @@ public class downloadFileGUI extends JPanel {
 
 		downFilePanel.add(downloadBtn);
 
-
-
-
-
 		// 다운로드 할 파일선택
 		downloadPathBtn.addActionListener(new ActionListener() {
 			@Override
@@ -66,7 +61,9 @@ public class downloadFileGUI extends JPanel {
 				// TODO Auto-generated method stub
 				downloadPathText.setText("");
 				JFrame downPath = new JFrame("select");
-				downPath.add(new upPathBrowser());
+				downPath.add(new downPathBrowser());
+
+				String dPath = downPathBrowser.fullPath;
 				downloadPathText.setText("selected");
 			}
 		});
@@ -82,56 +79,64 @@ public class downloadFileGUI extends JPanel {
 					File selectedDirectory = fileChooser.getSelectedFile(); // 선택한 폴더
 					downChoDirecText.setText(selectedDirectory.getAbsolutePath()); // 선택한 폴더의 경로를 표시
 					downLoadFilePath = downChoDirecText.getText();
+					downLoadFilePath = downLoadFilePath.replace("\\", "\\\\");
 				}
 			}
 		});
-		// 다운로드하기
+
+		// 다운로드 버튼 이벤트 리스너
 		downloadBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				// 다운로드 경로와 대상 경로 확인
+				if (downLoadFilePath != null && downloadPathText.getText() != null) {
 
-				// TODO Auto-generated method stub
-				if (downChoDirecText.getText() != null && downloadPathText.getText() != null) {
-					// 업로드를 백그라운드 스레드로 실행
+					filePath = "."+downPathBrowser.fullPath;
+					filePath = filePath.replace("/", "\\\\");
+					System.out.println("파일저장경로 : " + downLoadFilePath);
+					System.out.println("파일경로 : " + filePath);
+					
+					
+					
+					// 백그라운드 스레드에서 파일 다운로드 및 복사 작업 실행
 					new Thread(() -> {
-						// 클라이언트 cwd에 우선 받아놓고 gui에서 받아온 파일경로로 복사
-						// downLoadFilePath : 다운받을 경로위치
-						
-						Path source = Paths.get(downLoadFilePath);
-						downLoadFilePath = String.valueOf(source.getFileName());
-						Path dest = Paths.get(".").resolve(source.getFileName());
-						try {
-							Files.copy(source, dest, StandardCopyOption.REPLACE_EXISTING);
-						} catch (IOException ex) {
-							throw new RuntimeException(ex);
-						}
-
-
-						// retrieveFile 함수를 호출하여 파일 다운로드 
-						UserFTPResponse response = session.retrieveFile(downLoadFilePath, new FileEventListener() {
+						// 파일 다운로드
+						UserFTPResponse downloadResponse = session.retrieveFile(filePath, new FileEventListener() {
 							@Override
 							public void onProgressChanged(int currentByte) {
-								// TODO Auto-generated method stub
+								// 파일 다운로드 진행 중인 경우의 처리
+								// 여기에 진행 정보 업데이트 로직을 추가할 수 있습니다.
 							}
 
 							@Override
 							public void onProgressFinished() {
-								// TODO Auto-generated method stub
+								// 파일 다운로드 완료 후의 처리
+								// 여기에 완료 후 동작을 추가할 수 있습니다.
 							}
 						});
 
-						// 업로드 성공 여부를 확인하고 필요에 따라 처리
-						if (response != null && response.success) {
-							// 업로드 성공
-							JOptionPane.showMessageDialog(null, "Success", "Success", JOptionPane.INFORMATION_MESSAGE);
+						if (downloadResponse != null && downloadResponse.success) {
+							// 파일 다운로드 성공한 경우, 복사 작업 수행
+							Path source = Paths.get(filePath); // 다운로드한 파일의 경로를 Path로 변환
+							Path dest = Paths.get(downLoadFilePath).resolve(source.getFileName()); // 복사 대상 파일의 경로를 downLoadFilePath로 설정
+							try {
+								Files.copy(source, dest, StandardCopyOption.REPLACE_EXISTING);
 
+								// 복사 성공 메시지 출력
+								System.out.println("파일 다운로드 및 복사 성공");
+							} catch (IOException ex) {
+								// 복사 실패 시 예외 처리
+								System.out.println("파일 복사 실패: " + ex.getMessage());
+							}
 						} else {
-							// 업로드 실패
-							JOptionPane.showMessageDialog(null, "Fail", "Fail", JOptionPane.ERROR_MESSAGE);
+							// 파일 다운로드 실패 메시지 출력
+							System.out.println("파일 다운로드 실패");
 						}
 					}).start();
 				} else {
-					JOptionPane.showMessageDialog(null, "select first", "select first", JOptionPane.ERROR_MESSAGE);
+					// 경로가 지정되지 않은 경우 메시지 표시
+					JOptionPane.showMessageDialog(null, "Please select a file to download and a destination path",
+							"Error", JOptionPane.ERROR_MESSAGE);
 				}
 			}
 		});

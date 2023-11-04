@@ -6,6 +6,9 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import javax.swing.filechooser.FileSystemView;
 
 public class downPathBrowser extends JPanel {
@@ -13,7 +16,7 @@ public class downPathBrowser extends JPanel {
     JList<String> fileList;
 
     FTPSession session = App.session;
-
+    static String fullPath = null;
     public downPathBrowser() {
         JFrame upBroFrame = new JFrame("path");
         JPanel upBroPanel = new JPanel();
@@ -82,10 +85,40 @@ public class downPathBrowser extends JPanel {
         selectButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                UserFTPResponse path = session.pwd();
+                int selectedIndex = fileList.getSelectedIndex();
+                if (selectedIndex >= 0) {
+                    UserFTPResponse path = session.pwd();
+                    String message = path.message;
+               
+                    // Extract the directory or file name from the selected line
+                    String selectedLine = listModel.getElementAt(selectedIndex);     
+                    String line = selectedLine.substring(selectedLine.lastIndexOf(" - ") + 3);
+
+
+                    
+                    String pattern = "\"(.*?)\"";
+                    Pattern r = Pattern.compile(pattern);
+
+                    Matcher messageMatcher = r.matcher(message);
+
+                    String messageContent = "";
+                    
+                    // message에서 따옴표 안의 값을 추출
+                    if (messageMatcher.find()) {
+                        messageContent = messageMatcher.group(1);
+                    }
+                    // 따옴표 안의 값을 합쳐서 경로 문자열 생성
+                    fullPath = messageContent + "/" + line;  
+                    
+
+                    
+                    // 이제 selectedFilePath에 선택한 파일의 전체 경로가 저장되어 있습니다.
+                    System.out.println("Selected File Path: " + fullPath);
+                }
                 upBroFrame.dispose();
             }
         });
+
         // Add mouse listener to the file list
         fileList.addMouseListener(new MouseAdapter() {
             @Override

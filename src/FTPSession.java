@@ -144,6 +144,20 @@ public class FTPSession {
             return null;
         }
     }
+    
+    UserFTPResponse pwd(){
+        if(!isInputReady())
+            return null;
+        UserFTPResponse result;
+        FTPResponse r = request(CMD_PWD, "");
+        if(r.code != STATUS_FILENAME_OK){
+            result = new UserFTPResponse(false, r.code, r.message);
+            return result;
+        }
+        String path = r.message.split("\"")[1];
+        result = new UserFTPResponse(true, r.code, path);
+        return result;
+    }
 
     void quit() {
         if (!isInputReady())
@@ -169,19 +183,7 @@ public class FTPSession {
             return -1;
         }
     }
-    UserFTPResponse pwd(){
-        if(!isInputReady())
-            return null;
-        UserFTPResponse result;
-        FTPResponse r = request(CMD_PWD, "");
-        if(r.code != STATUS_FILENAME_OK){
-            result = new UserFTPResponse(false, r.code, r.message);
-            return result;
-        }
-        String path = r.message.split("\"")[1];
-        result = new UserFTPResponse(true, r.code, path);
-        return result;
-    }
+
 
     UserFTPResponse setPort(int p) {
         boolean r = true;
