@@ -91,7 +91,7 @@ public class downloadFileGUI extends JPanel {
 				// 다운로드 경로와 대상 경로 확인
 				if (downLoadFilePath != null && downloadPathText.getText() != null) {
 
-					filePath = "."+downPathBrowser.fullPath;
+					filePath = downPathBrowser.fullPath;
 					filePath = filePath.replace("/", "\\\\");
 					System.out.println("파일저장경로 : " + downLoadFilePath);
 					System.out.println("파일경로 : " + filePath);
@@ -123,6 +123,8 @@ public class downloadFileGUI extends JPanel {
 								Files.copy(source, dest, StandardCopyOption.REPLACE_EXISTING);
 
 								// 복사 성공 메시지 출력
+								JOptionPane.showMessageDialog(null, "Download Succes", "Download Succes",
+							JOptionPane.INFORMATION_MESSAGE);
 								System.out.println("파일 다운로드 및 복사 성공");
 							} catch (IOException ex) {
 								// 복사 실패 시 예외 처리
@@ -130,6 +132,8 @@ public class downloadFileGUI extends JPanel {
 							}
 						} else {
 							// 파일 다운로드 실패 메시지 출력
+							JOptionPane.showMessageDialog(null, "Download Fail", "Download Fail",
+							JOptionPane.ERROR_MESSAGE);
 							System.out.println("파일 다운로드 실패");
 						}
 					}).start();

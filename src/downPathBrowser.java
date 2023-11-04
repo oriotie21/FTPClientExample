@@ -104,12 +104,12 @@ public class downPathBrowser extends JPanel {
                     String messageContent = "";
                     
                     // message에서 따옴표 안의 값을 추출
-                    if (messageMatcher.find()) {
-                        messageContent = messageMatcher.group(1);
-                    }
+                    //if (messageMatcher.find()) {
+                    //    messageContent = messageMatcher.group(1);
+                    //}
                     // 따옴표 안의 값을 합쳐서 경로 문자열 생성
-                    fullPath = messageContent + "/" + line;  
-                    
+                    //fullPath = messageContent + "/" + line;  
+                    fullPath = ".\\\\" + line;
 
                     
                     // 이제 selectedFilePath에 선택한 파일의 전체 경로가 저장되어 있습니다.
