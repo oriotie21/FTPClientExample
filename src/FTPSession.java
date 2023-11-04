@@ -264,8 +264,6 @@ public class FTPSession {
         
         dataSession = new TCPServerSession(uport, ous, errorCallback, fileEventListener);
         dataSession.nlst();
-        //CompletableFuture<UserFTPResponse> future = CompletableFuture.supplyAsync(() -> waitForTrasfer(dataSession, CMD_NLST, ""));
-        //r = future.join();
         r = waitForTrasfer(dataSession, CMD_NLST, "");
 
         
@@ -327,10 +325,7 @@ public class FTPSession {
             FileInputStream fis = new FileInputStream(file);
             dataSession = new TCPServerSession(uport, fis, errorCallback, fileEventListener);
             dataSession.upload();
-            //업로드 명령 전송
-            //r = waitForTrasfer(dataSession, CMD_STOR, fname);
-            CompletableFuture<UserFTPResponse> future = CompletableFuture.supplyAsync(() -> waitForTrasfer(dataSession, CMD_STOR, fname));
-            r = future.join();
+            waitForTrasfer(dataSession, CMD_STOR, fname);
 
             transmissionErrorHandling(r, null, fname, null, listener);
             loginErrorHandling(r.code);
