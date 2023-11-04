@@ -264,9 +264,9 @@ public class FTPSession {
         
         dataSession = new TCPServerSession(uport, ous, errorCallback, fileEventListener);
         dataSession.nlst();
-        CompletableFuture<UserFTPResponse> future = CompletableFuture.supplyAsync(() -> waitForTrasfer(dataSession, CMD_NLST, ""));
-        r = future.join();
-
+        //CompletableFuture<UserFTPResponse> future = CompletableFuture.supplyAsync(() -> waitForTrasfer(dataSession, CMD_NLST, ""));
+        //r = future.join();
+        r = waitForTrasfer(dataSession, CMD_NLST, "");
 
         
         output = ous.toByteArray();
@@ -357,6 +357,7 @@ public class FTPSession {
              */
             session.setEOF(true);
             if (r.code == STATUS_TRANSFER_OK)
+                System.out.println("transfer success");
                 recvok = true;
             return new UserFTPResponse(recvok, r.code, r.message);
         } else {
