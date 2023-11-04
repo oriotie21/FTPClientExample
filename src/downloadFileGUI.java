@@ -4,9 +4,16 @@ import javax.swing.text.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 
 public class downloadFileGUI extends JPanel {
 	String downLoadFilePath = null;
+
+
+
 	public downloadFileGUI() {
 		FTPSession session = App.session;
 
@@ -48,6 +55,10 @@ public class downloadFileGUI extends JPanel {
 
 		downFilePanel.add(downloadBtn);
 
+
+
+
+
 		// 다운로드 할 파일선택
 		downloadPathBtn.addActionListener(new ActionListener() {
 			@Override
@@ -74,18 +85,30 @@ public class downloadFileGUI extends JPanel {
 				}
 			}
 		});
-
 		// 다운로드하기
-		// 프로그래스 바 움직임구현
 		downloadBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+
 				// TODO Auto-generated method stub
 				if (downChoDirecText.getText() != null && downloadPathText.getText() != null) {
 					// 업로드를 백그라운드 스레드로 실행
 					new Thread(() -> {
-						// store 함수를 호출하여 파일 업로드
-						UserFTPResponse response = session.store(downLoadFilePath, new FileEventListener() {
+						// 클라이언트 cwd에 우선 받아놓고 gui에서 받아온 파일경로로 복사
+						// downLoadFilePath : 다운받을 경로위치
+						
+						Path source = Paths.get(downLoadFilePath);
+						downLoadFilePath = String.valueOf(source.getFileName());
+						Path dest = Paths.get(".").resolve(source.getFileName());
+						try {
+							Files.copy(source, dest, StandardCopyOption.REPLACE_EXISTING);
+						} catch (IOException ex) {
+							throw new RuntimeException(ex);
+						}
+
+
+						// retrieveFile 함수를 호출하여 파일 다운로드 
+						UserFTPResponse response = session.retrieveFile(downLoadFilePath, new FileEventListener() {
 							@Override
 							public void onProgressChanged(int currentByte) {
 								// TODO Auto-generated method stub
@@ -110,17 +133,7 @@ public class downloadFileGUI extends JPanel {
 				} else {
 					JOptionPane.showMessageDialog(null, "select first", "select first", JOptionPane.ERROR_MESSAGE);
 				}
-				/*
-				 * // 다운로드 버튼 누르면 버튼 비활성화 이후 업로드 완료시 다시 활성화
-				 * downloadBtn.setEnabled(false);
-				 * 
-				 * //실행... 프로그래스 바 새창 열기
-				 * JFrame progBar = new JFrame();
-				 * progBar.add(new progressBarGUI(downloadBtn));
-				 */
-
 			}
-
 		});
 
 		downFileFrame.setVisible(true);

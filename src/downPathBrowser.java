@@ -86,33 +86,31 @@ public class downPathBrowser extends JPanel {
                 upBroFrame.dispose();
             }
         });
-
         // Add mouse listener to the file list
         fileList.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 2) {
-
                     int selectedIndex = fileList.getSelectedIndex();
-
                     if (selectedIndex >= 0) {
+                        String selectedLine = listModel.getElementAt(selectedIndex);
 
-                        String selectedFolder = listModel.getElementAt(selectedIndex);
-                        String currentPath = session.cwd(selectedFolder);
-
-                        if (currentPath != null) {
-                            listModel.clear();
+                        // Extract the directory or file name from the selected line
+                        String line = selectedLine.substring(selectedLine.lastIndexOf(" - ") + 3);
+                        int type = session.cd(line); // Determine if it's a folder or a file
+                        if (type == 0) {
+                            // If it's a folder, list its contents and update the UI
                             UserFTPResponse response = session.nlst();
                             if (response != null && response.success) {
                                 listModel.clear();
                                 String[] lines = response.message.split("\r\n");
-                                for (String line : lines) {
-                                    int type = session.cd(line); // Determine if it's a folder or a file
-                                    if (type == 0) {
-                                        listModel.addElement("folder - " + line);
+                                for (String subLine : lines) {
+                                    int subType = session.cd(subLine);
+                                    if (subType == 0) {
+                                        listModel.addElement("folder - " + subLine);
                                         session.cd("..");
-                                    } else if (type == 1) {
-                                        listModel.addElement("file - " + line);
+                                    } else if (subType == 1) {
+                                        listModel.addElement("file - " + subLine);
                                     }
                                 }
                             }
@@ -121,7 +119,6 @@ public class downPathBrowser extends JPanel {
                 }
             }
         });
-
         upBroFrame.add(upBroPanel);
         upBroPanel.setLayout(null);
         upBroPanel.add(listFilesButton);

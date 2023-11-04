@@ -93,7 +93,6 @@ public class uploadFileGUI extends JPanel {
 			}
 		});
 		// 업로드하기
-		// 프로그래스 바 움직임구현
 		uploadBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

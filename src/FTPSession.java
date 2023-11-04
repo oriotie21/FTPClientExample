@@ -229,7 +229,6 @@ public class FTPSession {
     private UserFTPResponse retrieve(String fname, OutputStream outf, FileEventListener listener) {
         int dport = getDataPort();
 
-
         //포트 1개 오픈
         dataSession = new TCPServerSession(dport, outf, errorCallback, fileEventListener);
         dataSession.download();
