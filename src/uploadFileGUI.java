@@ -113,10 +113,11 @@ public class uploadFileGUI extends JPanel {
 						// 업로드 성공 여부를 확인하고 필요에 따라 처리
 						if (response != null && response.success) {
 							// 업로드 성공
+							JOptionPane.showMessageDialog(null, "Success", "Success", JOptionPane.INFORMATION_MESSAGE);
 
 						} else {
 							// 업로드 실패
-
+							JOptionPane.showMessageDialog(null, "Fail", "Fail", JOptionPane.ERROR_MESSAGE);
 						}
 					}).start();
 
