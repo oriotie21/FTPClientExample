@@ -91,6 +91,7 @@ public class downloadFileGUI extends JPanel {
 				// TODO Auto-generated method stub
 				// 다운로드 버튼 누르면 버튼 비활성화 이후 다운로드 완료시 다시 활성화
 				downloadBtn.setEnabled(false);
+<<<<<<< Updated upstream:src/GUI1/downloadFileGUI.java
 				SwingWorker<Void, Integer> worker = new SwingWorker<Void, Integer>() {
 					@Override
 					protected Void doInBackground() throws Exception {
@@ -119,6 +120,19 @@ public class downloadFileGUI extends JPanel {
 					}
 				};
 				worker.execute();	
+=======
+				
+
+
+
+
+
+				
+				//실행... 프로그래스 바 새창 열기
+				JFrame progBar = new JFrame();
+				progBar.add(new progressBarGUI(downloadBtn));
+
+>>>>>>> Stashed changes:src/downloadFileGUI.java
 			}
 		});
 		downFileFrame.setVisible(true);

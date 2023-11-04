@@ -1,28 +1,56 @@
+<<<<<<< Updated upstream:src/GUI1/uploadFileGUI.java
 package GUI1;
+=======
+
+>>>>>>> Stashed changes:src/uploadFileGUI.java
 import javax.swing.*;
 import javax.swing.text.*;
 
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
+import java.util.Random;
+
+import java.util.stream.Stream;
+import java.lang.reflect.Method;
+import java.util.Scanner;
+import java.util.concurrent.CompletableFuture;
+
 public class uploadFileGUI extends JPanel {
+	String selectedFileName;
+	String selectedFilePath;
+	String selectedfilePathName;
 	public uploadFileGUI() {
 		JFrame upFileFrame = new JFrame("Upload File");
 		JPanel upFilePanel = new JPanel();
+<<<<<<< Updated upstream:src/GUI1/uploadFileGUI.java
 		
 		JLabel upUploadPath = new JLabel("Upload Path:");
 		JTextArea upUploadPathText = new JTextArea(1, 10);
 		JButton upUploadPathBtn = new JButton("browse");
 		upUploadPathText.disable();
 		
+=======
+
+		JLabel uploadPath = new JLabel("Upload Path:");
+		JTextArea uploadPathText = new JTextArea(1, 10);
+		JButton uploadPathBtn = new JButton("browse");
+		uploadPathText.disable();
+
+>>>>>>> Stashed changes:src/uploadFileGUI.java
 		JLabel upChoDirec = new JLabel("Choose a file:");
 		JTextArea upChoDirecText = new JTextArea(1, 100);
 		JButton upChoDirecBtn = new JButton("browse");
 		upChoDirecText.disable();
+<<<<<<< Updated upstream:src/GUI1/uploadFileGUI.java
 		
 		JButton upUploadBtn = new JButton("Uplaod");
 		// 프로그레스 바
 		JProgressBar upUploadBar = new JProgressBar(JProgressBar.HORIZONTAL, 0, 100);
+=======
+
+		JButton uploadBtn = new JButton("Upload");
+>>>>>>> Stashed changes:src/uploadFileGUI.java
 
 		upUploadPath.setBounds(10, 10, 80, 20);
 		upUploadPathText.setBounds(100, 10, 180, 20);
@@ -32,6 +60,7 @@ public class uploadFileGUI extends JPanel {
 		upChoDirecText.setBounds(100, 40, 180, 20);
 		upChoDirecBtn.setBounds(300, 40, 80, 20);
 
+<<<<<<< Updated upstream:src/GUI1/uploadFileGUI.java
 		upUploadBtn.setBounds(165, 100, 80, 25);
 		upUploadBar.setBounds(10, 130, 365, 40);
 		
@@ -41,23 +70,43 @@ public class uploadFileGUI extends JPanel {
 		upFilePanel.add(upUploadPath);
 		upFilePanel.add(upUploadPathText);
 		upFilePanel.add(upUploadPathBtn);
+=======
+		uploadBtn.setBounds(165, 100, 80, 25);
+
+		upFileFrame.add(upFilePanel);
+		upFilePanel.setLayout(null);
+
+		upFilePanel.add(uploadPath);
+		upFilePanel.add(uploadPathText);
+		upFilePanel.add(uploadPathBtn);
+>>>>>>> Stashed changes:src/uploadFileGUI.java
 
 		upFilePanel.add(upChoDirec);
 		upFilePanel.add(upChoDirecText);
 		upFilePanel.add(upChoDirecBtn);
 
+<<<<<<< Updated upstream:src/GUI1/uploadFileGUI.java
 		upFilePanel.add(upUploadBtn);
 		upFilePanel.add(upUploadBar);
 		
+=======
+		upFilePanel.add(uploadBtn);
+
+>>>>>>> Stashed changes:src/uploadFileGUI.java
 		// 업로드할 서버 디렉토리 선택
 		upUploadPathBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
+				String serverPath = "";
+				JFrame pathBrowser = new JFrame("path");
+				pathBrowser.add(new upPathBrowser());
 				
+				// 서버 경로 문자열로 받아서 저장해야함
+				uploadPathText.setText("selected");
 			}
 		});
-		
+
 		// 내 pc에서 업로드할 파일 선택
 		upChoDirecBtn.addActionListener(new ActionListener() {
 			@Override
@@ -71,18 +120,18 @@ public class uploadFileGUI extends JPanel {
 					File selectedFile = fileChooser.getSelectedFile(); // 선택한 파일 가져오기
 
 					// Get the selected file's name and path
-					String selectedFileName = selectedFile.getName();
-					String selectedFilePath = selectedFile.getAbsolutePath();
-
+					selectedFileName = selectedFile.getName();
+					selectedFilePath = selectedFile.getAbsolutePath();
+					selectedfilePathName = selectedFilePath + selectedFileName;
 					// Set the file name and path in the upDire JTextArea
-					upChoDirecText.setText(selectedFilePath + selectedFileName);
+					upChoDirecText.setText(selectedfilePathName);
 				} else {
-					JOptionPane.showMessageDialog(null, "Load canceled", "Load canceled",
-							JOptionPane.INFORMATION_MESSAGE);
+					JOptionPane.showMessageDialog(null, "Load canceled", "Load canceled", JOptionPane.INFORMATION_MESSAGE);
 				}
 			}
 		});
 		// 업로드하기
+<<<<<<< Updated upstream:src/GUI1/uploadFileGUI.java
 		// 프로그래스 바 움직임구현
 		upUploadBtn.addActionListener(new ActionListener() {
 			@Override
@@ -120,6 +169,37 @@ public class uploadFileGUI extends JPanel {
 				worker.execute();	
 			}
 		});
+=======
+		uploadBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// FTP 세션을 가져옵니다.
+				FTPSession session = App.session;
+
+				// 업로드할 파일 경로 (이 예제에서는 "abc" 파일로 가정)
+				String fname = selectedfilePathName;
+				
+				// 업로드 버튼 비활성화
+				UserFTPResponse response = session.store(fname, new FileEventListener() {
+					@Override
+					public void onProgressChanged(int currentByte) {
+						// TODO Auto-generated method stub
+					}
+
+					@Override
+					public void onProgressFinished() {
+						// TODO Auto-generated method stub
+					}
+				});
+			}
+		});
+
+/*/
+				//실행... 프로그래스 바 새창 열기
+				JFrame progBar = new JFrame();
+				progBar.add(new progressBarGUI(uploadBtn));
+*/
+>>>>>>> Stashed changes:src/uploadFileGUI.java
 		upFileFrame.setVisible(true);
 		upFileFrame.setSize(400, 220);
 		upFileFrame.setLocationRelativeTo(null);
