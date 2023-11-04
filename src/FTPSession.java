@@ -264,8 +264,7 @@ public class FTPSession {
         
         dataSession = new TCPServerSession(uport, ous, errorCallback, fileEventListener);
         dataSession.nlst();
-        waitForTrasfer(dataSession, CMD_NLST, "");
-
+        r = waitForTrasfer(dataSession, CMD_NLST, "");
 
         
         output = ous.toByteArray();
@@ -351,9 +350,9 @@ public class FTPSession {
              *<- 이 사이에서 파일 전송이 이루어짐 ->
              * 파일 다운로드 완료 시 응답코드 리턴
              */
-            System.out.println("Complete waitForTransfer");
             session.setEOF(true);
             if (r.code == STATUS_TRANSFER_OK)
+                System.out.println("transfer success");
                 recvok = true;
             return new UserFTPResponse(recvok, r.code, r.message);
         } else {

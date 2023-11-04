@@ -41,6 +41,7 @@ public class TCPServerSession extends Thread{
                 fileEventListener.onProgressChanged(bytesTotal);
             }
             }
+            System.out.println("file written : "+bytesTotal+"bytes");
 
 
         }
