@@ -5,9 +5,14 @@ import javax.swing.text.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 
 public class uploadFileGUI extends JPanel {
 	String upLoadFilePath = null;
+	String upLoadFileName = null;
 
 	public uploadFileGUI() {
 		FTPSession session = App.session;
@@ -94,11 +99,20 @@ public class uploadFileGUI extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 
 				if (upChoDirecText.getText() != null && upLoadFilePath != null) {
-
 					// 업로드를 백그라운드 스레드로 실행
 					new Thread(() -> {
+						// 파일 cwd로 복사
+						Path source = Paths.get(upLoadFilePath);
+						upLoadFileName = String.valueOf(source.getFileName());
+						Path dest = Paths.get(".").resolve(source.getFileName());
+						try {
+							Files.copy(source, dest, StandardCopyOption.REPLACE_EXISTING);
+						} catch (IOException ex) {
+							throw new RuntimeException(ex);
+						}
+
 						// store 함수를 호출하여 파일 업로드
-						UserFTPResponse response = session.store(upLoadFilePath, new FileEventListener() {
+						UserFTPResponse response = session.store(upLoadFileName, new FileEventListener() {
 							@Override
 							public void onProgressChanged(int currentByte) {
 								// TODO Auto-generated method stub

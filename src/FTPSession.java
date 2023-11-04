@@ -264,8 +264,7 @@ public class FTPSession {
         
         dataSession = new TCPServerSession(uport, ous, errorCallback, fileEventListener);
         dataSession.nlst();
-        CompletableFuture<UserFTPResponse> future = CompletableFuture.supplyAsync(() -> waitForTrasfer(dataSession, CMD_NLST, ""));
-        r = future.join();
+        waitForTrasfer(dataSession, CMD_NLST, "");
 
 
         
@@ -327,10 +326,7 @@ public class FTPSession {
             FileInputStream fis = new FileInputStream(file);
             dataSession = new TCPServerSession(uport, fis, errorCallback, fileEventListener);
             dataSession.upload();
-            //업로드 명령 전송
-            //r = waitForTrasfer(dataSession, CMD_STOR, fname);
-            CompletableFuture<UserFTPResponse> future = CompletableFuture.supplyAsync(() -> waitForTrasfer(dataSession, CMD_STOR, fname));
-            r = future.join();
+            waitForTrasfer(dataSession, CMD_STOR, fname);
 
             transmissionErrorHandling(r, null, fname, null, listener);
             loginErrorHandling(r.code);
@@ -355,6 +351,7 @@ public class FTPSession {
              *<- 이 사이에서 파일 전송이 이루어짐 ->
              * 파일 다운로드 완료 시 응답코드 리턴
              */
+            System.out.println("Complete waitForTransfer");
             session.setEOF(true);
             if (r.code == STATUS_TRANSFER_OK)
                 recvok = true;
