@@ -31,6 +31,30 @@ public class upPathBrowser extends JPanel {
 
         selectButton.setBounds(280, 220, 100, 20);
 
+
+        listFilesButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+        
+                UserFTPResponse response = session.nlst();
+                if (response != null && response.success) {
+                    listModel.clear();
+                    String[] lines = response.message.split("\r\n");
+                    for (String line : lines) {
+                        int type = session.cd(line); // Determine if it's a folder or a file
+                        if (type == 0) {
+                            listModel.addElement("folder - " + line);
+                            session.cd("..");
+                        } else if (type == 1) {
+                            listModel.addElement("file - " + line);
+                        }
+                    }
+                }
+            }
+        });
+        
+
+        /*
         // Add action listener to the "List Files" button
         listFilesButton.addActionListener(new ActionListener() {
             @Override
@@ -45,7 +69,7 @@ public class upPathBrowser extends JPanel {
                     }
                 }
             }
-        });
+        });*/
 
         // Add action listener to the "Go Up" button
         upButton.addActionListener(new ActionListener() {
@@ -58,7 +82,13 @@ public class upPathBrowser extends JPanel {
                     if (response != null && response.success) {
                         String[] lines = response.message.split("\r\n");
                         for (String line : lines) {
-                            listModel.addElement(line);
+                            int type = session.cd(line); // Determine if it's a folder or a file
+                            if (type == 0) {
+                                listModel.addElement("folder - " + line);
+                                session.cd("..");
+                            } else if (type == 1) {
+                                listModel.addElement("file - " + line);
+                            }
                         }
                     }
                 }
@@ -94,7 +124,13 @@ public class upPathBrowser extends JPanel {
                                 listModel.clear();
                                 String[] lines = response.message.split("\r\n");
                                 for (String line : lines) {
-                                    listModel.addElement(line);
+                                    int type = session.cd(line); // Determine if it's a folder or a file
+                                    if (type == 0) {
+                                        listModel.addElement("folder - " + line);
+                                        session.cd("..");
+                                    } else if (type == 1) {
+                                        listModel.addElement("file - " + line);
+                                    }
                                 }
                             }
                         }

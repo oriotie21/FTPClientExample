@@ -11,7 +11,7 @@ public class App {
 	void print(String s) {
 		// System.out.println(s);
 	}
-
+	static FTPSession session = new FTPSession(null, 0, null, null);
 	static void guiMain() {
 
 		JFrame loginFrame = new JFrame("Welcome to FTP Program");
@@ -82,7 +82,7 @@ public class App {
 
 				try {
 					int iport = Integer.parseInt(port);
-					FTPSession session = new FTPSession(host, iport, new ErrorCallback() {
+					session = new FTPSession(host, iport, new ErrorCallback() {
 						public void onError(Exception e) {
 							System.out.println("!!Error!!");
 						}
