@@ -240,8 +240,7 @@ public class FTPSession {
             return ur;
         //RETR <fname> 입력
         UserFTPResponse r;
-        CompletableFuture<UserFTPResponse> future = CompletableFuture.supplyAsync(() -> waitForTrasfer(dataSession, CMD_RETR, fname));
-        r = future.join();
+        r = waitForTrasfer(dataSession, CMD_RETR, fname);
 
         //에러 여부 확인 및 처리
         transmissionErrorHandling(r, null, fname, outf, listener);
