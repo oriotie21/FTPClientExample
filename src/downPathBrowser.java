@@ -53,13 +53,16 @@ public class downPathBrowser extends JPanel {
                         if (type == 0) {
                             listModel.addElement("folder - " + line);
                             int cdResult = session.cd("..");
-                            if(cdResult == -1)
+                            if(cdResult == -1){
                                 JOptionPane.showMessageDialog(null, "Server Response NULL", "Error", JOptionPane.ERROR_MESSAGE);
+                                break;
+                            }
                         }
                         else if (type == 1) {
                             listModel.addElement("file - " + line);
                         }else{
                             JOptionPane.showMessageDialog(null, "Server Response NULL", "Error", JOptionPane.ERROR_MESSAGE);
+                            break;
                         }
                     }
                 }else {
@@ -97,11 +100,13 @@ public class downPathBrowser extends JPanel {
                                 int cdResult = session.cd("..");
                                 if(cdResult == -1)
                                     JOptionPane.showMessageDialog(null, "Server Response NULL", "Error", JOptionPane.ERROR_MESSAGE);
+                                    break;
                             }
                             else if (type == 1) {
                                 listModel.addElement("file - " + line);
                             }else{
                                 JOptionPane.showMessageDialog(null, "Server Response NULL", "Error", JOptionPane.ERROR_MESSAGE);
+                                break;
                             }
                         }
                     }
@@ -164,11 +169,16 @@ public class downPathBrowser extends JPanel {
                                     if (subType == 0) {
                                         listModel.addElement("folder - " + subLine);
                                         int cdResult = session.cd("..");
-                                        if(cdResult == -1)
+                                        if (cdResult == -1){
                                             JOptionPane.showMessageDialog(null, "Server Response NULL", "Error", JOptionPane.ERROR_MESSAGE);
+                                            break;
+                                        }
                                     }
-                                    if (subType == 1) {
+                                    else if (subType == 1) {
                                         listModel.addElement("file - " + subLine);
+                                    }else{
+                                        JOptionPane.showMessageDialog(null, "Server Response NULL", "Error", JOptionPane.ERROR_MESSAGE);
+                                        break;
                                     }
                                 }
                             }
