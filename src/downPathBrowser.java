@@ -54,14 +54,16 @@ public class downPathBrowser extends JPanel {
                             listModel.addElement("folder - " + line);
                             int cdResult = session.cd("..");
                             if(cdResult == -1)
-                                JOptionPane.showMessageDialog(null, "Server Response NULL", "Error", JOptionPane.INFORMATION_MESSAGE);
+                                JOptionPane.showMessageDialog(null, "Server Response NULL", "Error", JOptionPane.ERROR_MESSAGE);
                         }
-                        if (type == 1) {
+                        else if (type == 1) {
                             listModel.addElement("file - " + line);
+                        }else{
+                            JOptionPane.showMessageDialog(null, "Server Response NULL", "Error", JOptionPane.ERROR_MESSAGE);
                         }
                     }
                 }else {
-                    JOptionPane.showMessageDialog(null, "Server Response NULL", "Error", JOptionPane.INFORMATION_MESSAGE);
+                    JOptionPane.showMessageDialog(null, "Server Response NULL", "Error", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
@@ -94,10 +96,12 @@ public class downPathBrowser extends JPanel {
                                 listModel.addElement("folder - " + line);
                                 int cdResult = session.cd("..");
                                 if(cdResult == -1)
-                                    JOptionPane.showMessageDialog(null, "Server Response NULL", "Error", JOptionPane.INFORMATION_MESSAGE);
+                                    JOptionPane.showMessageDialog(null, "Server Response NULL", "Error", JOptionPane.ERROR_MESSAGE);
                             }
-                            if (type == 1) {
+                            else if (type == 1) {
                                 listModel.addElement("file - " + line);
+                            }else{
+                                JOptionPane.showMessageDialog(null, "Server Response NULL", "Error", JOptionPane.ERROR_MESSAGE);
                             }
                         }
                     }
@@ -125,6 +129,8 @@ public class downPathBrowser extends JPanel {
                 } else if (type == 0) {
                     // 파일을 선택한 경우
                     JOptionPane.showMessageDialog(null, "폴더는 선택할 수 없습니다.", "에러", JOptionPane.ERROR_MESSAGE);
+                }else{
+                    JOptionPane.showMessageDialog(null, "Server Response NULL", "Error", JOptionPane.ERROR_MESSAGE);
                 }
                 upBroFrame.dispose();
             }
@@ -166,6 +172,8 @@ public class downPathBrowser extends JPanel {
                                     }
                                 }
                             }
+                        }else{
+                            JOptionPane.showMessageDialog(null, "Server Response NULL", "Error", JOptionPane.ERROR_MESSAGE);
                         }
                     }
                 }
