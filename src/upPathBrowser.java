@@ -73,6 +73,9 @@ public class upPathBrowser extends JPanel {
                         }
                     }
                 }
+                else{
+                    JOptionPane.showMessageDialog(null, "상위 폴더가 존재하지 않습니다.", "에러", JOptionPane.ERROR_MESSAGE);
+                }
             }
         });
 
