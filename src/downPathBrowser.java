@@ -38,7 +38,7 @@ public class downPathBrowser extends JPanel {
         listFilesButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-        
+                listFilesButton.setEnabled(false);
                 UserFTPResponse response = session.nlst();
                 if (response != null && response.success) {
                     listModel.clear();
@@ -61,7 +61,14 @@ public class downPathBrowser extends JPanel {
         upButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+
                 String currentPath = session.cwd(".."); // cwd : 성공시 디렉토리 반환, 실패시 null 반환
+                try {
+                    Thread.sleep(50); // 0.05초 (50 밀리초) 대기
+                } catch (InterruptedException ex) {
+                    // 예외 처리가 필요할 수 있습니다.
+                }
+
                 if (currentPath != null) {
                     listModel.clear();
                     UserFTPResponse response = session.nlst();
@@ -130,9 +137,9 @@ public class downPathBrowser extends JPanel {
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 2) {
                     int selectedIndex = fileList.getSelectedIndex();
+                    
                     if (selectedIndex >= 0) {
                         String selectedLine = listModel.getElementAt(selectedIndex);
-
                         // Extract the directory or file name from the selected line
                         String line = selectedLine.substring(selectedLine.lastIndexOf(" - ") + 3);
                         int type = session.cd(line); // Determine if it's a folder or a file

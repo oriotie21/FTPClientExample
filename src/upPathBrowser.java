@@ -34,7 +34,7 @@ public class upPathBrowser extends JPanel {
         listFilesButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                listFilesButton.setEnabled(false);
                 UserFTPResponse response = session.nlst();
                 if (response != null && response.success) {
                     listModel.clear();
@@ -57,6 +57,11 @@ public class upPathBrowser extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String currentPath = session.cwd(".."); // cwd : 성공시 디렉토리 반환, 실패시 null 반환
+                try {
+                    Thread.sleep(50); // 0.05초 (50 밀리초) 대기
+                } catch (InterruptedException ex) {
+                    // 예외 처리가 필요할 수 있습니다.
+                }
                 if (currentPath != null) {
                     listModel.clear();
                     UserFTPResponse response = session.nlst();
