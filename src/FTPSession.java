@@ -240,7 +240,7 @@ public class FTPSession {
             return ur;
         //RETR <fname> 입력
         UserFTPResponse r;
-        r = waitForTrasfer(dataSession, CMD_RETR, fname);
+        r = waitForTrasfer(dataSession, CMD_RETR, fname, null);
 
         //에러 여부 확인 및 처리
         transmissionErrorHandling(r, null, fname, outf, listener);
@@ -259,38 +259,29 @@ public class FTPSession {
         if (!r.success)
             return r;
 
-        byte[] output = new byte[512]; // 폴더 및 파일명 저장 inputStream
+        final byte[][] output = {new byte[512]}; // 폴더 및 파일명 저장 inputStream
         ByteArrayOutputStream ous = new ByteArrayOutputStream();
         
         dataSession = new TCPServerSession(uport, ous, errorCallback, fileEventListener);
         dataSession.nlst();
-        r = waitForTrasfer(dataSession, CMD_NLST, "");
+        final String[] outputStr = {""};
+        r = waitForTrasfer(dataSession, CMD_NLST, "", new FileEventListener() {
+            @Override
+            public void onProgressChanged(int currentByte) {
 
-        
-        output = ous.toByteArray();
-        String outputStr = "*";
-        try {
-            outputStr = new String(output, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            // TODO Auto-generated catch block
-            errorCallback.onError(e);
-        }
-        System.out.println(outputStr);
-
-        String[] lines = outputStr.split("\r\n");
-
-        int type;
-        for (String line : lines) {
-            type = cd(line);
-            // type이 0이면 폴더, 1이면 파일
-            if(type == 0){
-                System.out.println("folder");
-                cd("..");
-            }else{
-                System.out.println("file");
             }
-        }
-
+            @Override
+            public void onProgressFinished() {
+                output[0] = ous.toByteArray();
+                try {
+                    outputStr[0] = new String(output[0], "UTF-8");
+                } catch (UnsupportedEncodingException e) {
+                    // TODO Auto-generated catch block
+                    errorCallback.onError(e);
+                }
+                System.out.println(outputStr[0]);
+            }
+        });
 
         //에러 여부 확인 및 처리
         transmissionErrorHandling(r, null, null, null, null);
@@ -299,7 +290,7 @@ public class FTPSession {
         //성공시
         r.success = true;
         r.code = STATUS_TRANSFER_OK;
-        r.message = outputStr;
+        r.message = outputStr[0];
         return r;
 
     }
@@ -325,7 +316,7 @@ public class FTPSession {
             FileInputStream fis = new FileInputStream(file);
             dataSession = new TCPServerSession(uport, fis, errorCallback, fileEventListener);
             dataSession.upload();
-            waitForTrasfer(dataSession, CMD_STOR, fname);
+            waitForTrasfer(dataSession, CMD_STOR, fname, null);
 
             transmissionErrorHandling(r, null, fname, null, listener);
             loginErrorHandling(r.code);
@@ -337,7 +328,7 @@ public class FTPSession {
         return r;
     }
 
-    UserFTPResponse waitForTrasfer(TCPServerSession session, String cmd, String fname) {
+    UserFTPResponse waitForTrasfer(TCPServerSession session, String cmd, String fname, FileEventListener listener) {
         FTPResponse r = request(cmd, fname);
         if (r.code == STATUS_TRANSFER_READY) {
             r = tcpSession.getResponse();
@@ -351,11 +342,14 @@ public class FTPSession {
              * 파일 다운로드 완료 시 응답코드 리턴
              */
             session.setEOF(true);
-            if (r.code == STATUS_TRANSFER_OK)
+            if (r.code == STATUS_TRANSFER_OK){
                 System.out.println("transfer success");
                 recvok = true;
+            }
+            listener.onProgressFinished();
             return new UserFTPResponse(recvok, r.code, r.message);
         } else {
+            listener.onProgressFinished();
             return new UserFTPResponse(false, r.code, r.message);
         }
     }
