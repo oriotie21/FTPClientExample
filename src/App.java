@@ -3,6 +3,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashSet;
 import java.util.Set;
+import javax.swing.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 import javax.swing.*;
 
@@ -24,7 +27,7 @@ public class App {
         JTextArea userText = new JTextArea(1, 100);
 
         JLabel pw = new JLabel("Password:");
-        JTextArea pwText = new JTextArea(1, 100);
+        JPasswordField pwText = new JPasswordField(20);
 
         JButton loginBtn = new JButton("Login");
         loginFrame.getRootPane().setDefaultButton(loginBtn);
