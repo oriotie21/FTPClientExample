@@ -13,6 +13,9 @@ public class upPathBrowser extends JPanel {
     JList<String> fileList;
 
     FTPSession session = App.session;
+    int flag = 0;
+
+    UserFTPResponse direct = null;
 
     public upPathBrowser() {
         JFrame upBroFrame = new JFrame("path");
@@ -34,8 +37,11 @@ public class upPathBrowser extends JPanel {
         listFilesButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                listFilesButton.setEnabled(false);
+                direct = session.pwd();
+
                 UserFTPResponse response = session.nlst();
+
+                listFilesButton.setEnabled(false);
                 if (response != null && response.success) {
                     listModel.clear();
                     String[] lines = response.message.split("\r\n");
@@ -61,6 +67,7 @@ public class upPathBrowser extends JPanel {
         upButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                flag = 1;
                 String currentPath = session.cwd(".."); // cwd : 성공시 디렉토리 반환, 실패시 null 반환
                 try {
                     Thread.sleep(50); // 0.05초 (50 밀리초) 대기
@@ -97,37 +104,49 @@ public class upPathBrowser extends JPanel {
         selectButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                int selectedIndex = fileList.getSelectedIndex();
-                // Extract the directory or file name from the selected line
-                String selectedLine = listModel.getElementAt(selectedIndex);
+                JTextArea text = uploadFileGUI.uploadPathText;
 
-                int lastIndex = selectedLine.lastIndexOf(" - ");
-                String folderName = selectedLine.substring(0, lastIndex);
-                System.out.println("Current Folder Name: " + folderName);
-                if (lastIndex != -1) {
+                UserFTPResponse ufr = session.pwd();
+                String message = ufr.message;
+                System.out.println("message : " + message);
+                String extractedValue = null;
 
+                int start = message.indexOf("\""); // 따옴표의 시작 위치 찾기
+                if (start != -1) {
+                    int end = message.indexOf("\"", start + 1); // 두 번째 따옴표의 위치 찾기
+                    if (end != -1) {
+                        // 따옴표 사이의 문자열 추출
+                        extractedValue = message.substring(start + 1, end);
+                    }
                 }
-                String line = selectedLine.substring(lastIndex + 3);
-
-                int type = session.cd(line); // Determine if it's a folder or a file
-                if (selectedIndex >= 0 && type == 0) {
-
-                    // 폴더를 선택한 경우
-                    String fullPath = line;
-                    // 이제 selectedFilePath에 선택한 파일의 전체 경로가 저장되어 있습니다.
-                    System.out.println("Selected Folder Path: " + fullPath);
-                    JTextArea text = uploadFileGUI.uploadPathText;
-                    text.setText(line);
-
-                } else if (type == 1) {
-                    // 파일을 선택한 경우
-                    // "Select" 버튼을 비활성화
-                    selectButton.setEnabled(false);
-                    // 이제 selectedFilePath에 선택한 파일의 전체 경로가 저장되어 있습니다.
-                    System.out.println("Selected File Path: " + line);
-                    JTextArea text = uploadFileGUI.uploadPathText;
-                    text.setText(line);
-                }
+                text.setText(extractedValue);
+                /*
+                 * int selectedIndex = fileList.getSelectedIndex();
+                 * // Extract the directory or file name from the selected line
+                 * String selectedLine = listModel.getElementAt(selectedIndex);
+                 * 
+                 * int lastIndex = selectedLine.lastIndexOf(" - ");
+                 * //String folderName = selectedLine.substring(0, lastIndex);
+                 * //System.out.println("Current Folder Name: " + folderName);
+                 * String line = selectedLine.substring(lastIndex + 3);
+                 * 
+                 * int type = session.cd(line); // Determine if it's a folder or a file
+                 * if (type == 0) {
+                 * // 폴더를 선택한 경우
+                 * String fullPath = line;
+                 * // 이제 selectedFilePath에 선택한 파일의 전체 경로가 저장되어 있습니다.
+                 * System.out.println("Selected Folder Path: " + fullPath);
+                 * text.setText(message);
+                 * 
+                 * } else if (type == 1) {
+                 * // 파일을 선택한 경우
+                 * // "Select" 버튼을 비활성화
+                 * selectButton.setEnabled(false);
+                 * // 이제 selectedFilePath에 선택한 파일의 전체 경로가 저장되어 있습니다.
+                 * System.out.println("Selected File Path: " + line);
+                 * text.setText(message);
+                 * }
+                 */
                 upBroFrame.dispose();
             }
         });
