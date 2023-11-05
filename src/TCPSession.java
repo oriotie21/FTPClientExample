@@ -15,9 +15,9 @@ interface ErrorCallback {
 
 public class TCPSession {
 
-    String ASC_SP = " ";
-    String ASC_CR = "\r";
-    String ASC_LF = "\n";
+    char ASC_SP = ' ';
+    char ASC_CR = '\r';
+    char ASC_LF = '\n';
 
     String ip;
     String hostIP = "";
@@ -80,11 +80,28 @@ public class TCPSession {
 
     FTPResponse getResponse() {
         String content = "";
+        boolean endOfResponse = false;
         try {
-            //do{
+            do{
             content = reader.readLine();
-            reader = new BufferedReader(new InputStreamReader(tcpSock.getInputStream()));
-            //}while(content.length() >= 4 && Common.isNumeric(content.substring(0, 4))); //앞 3자리가 숫자가 아니면 그냥 넘김
+            String contents[] = content.split(Character.toString(ASC_CR) + Character.toString(ASC_LF));
+            for(int i = 0; i < contents.length; i++)
+            {
+            System.out.println("answer : "+contents[i]);
+            if(contents[i].length() >= 4){
+            if(Common.isNumeric(contents[i].substring(0, 3)) && contents[i].charAt(3) == ASC_SP){
+            endOfResponse = true;
+            content = contents[i];
+            break;    
+            /*
+            The last line will begin with the same code, followed
+            immediately by Space <SP>, optionally some text, and the Telnet
+            end-of-line code.
+            */
+            }} 
+            } 
+        }while(!endOfResponse);
+            
 
         } catch (IOException e) {
             // TODO Auto-generated catch block
