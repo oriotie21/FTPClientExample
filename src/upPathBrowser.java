@@ -50,7 +50,7 @@ public class upPathBrowser extends JPanel {
                         try {
                             Thread.sleep(50); // 0.05초 (50 밀리초) 대기
                         } catch (InterruptedException ex) {
-                            // 예외 처리가 필요할 수 있습니다.
+                            ex.printStackTrace();
                         }
                         if (type == 0) {
                             listModel.addElement("folder - " + line);
@@ -72,7 +72,7 @@ public class upPathBrowser extends JPanel {
                 try {
                     Thread.sleep(50); // 0.05초 (50 밀리초) 대기
                 } catch (InterruptedException ex) {
-                    // 예외 처리가 필요할 수 있습니다.
+                    ex.printStackTrace();
                 }
                 if (currentPath != null) {
                     listModel.clear();
@@ -84,7 +84,7 @@ public class upPathBrowser extends JPanel {
                             try {
                                 Thread.sleep(50); // 0.05초 (50 밀리초) 대기
                             } catch (InterruptedException ex) {
-                                // 예외 처리가 필요할 수 있습니다.
+                                ex.printStackTrace();
                             }
                             if (type == 0) {
                                 listModel.addElement("folder - " + line);
@@ -108,7 +108,6 @@ public class upPathBrowser extends JPanel {
 
                 UserFTPResponse ufr = session.pwd();
                 String message = ufr.message;
-                System.out.println("message : " + message);
                 String extractedValue = null;
 
                 int start = message.indexOf("\""); // 따옴표의 시작 위치 찾기
@@ -120,33 +119,6 @@ public class upPathBrowser extends JPanel {
                     }
                 }
                 text.setText(extractedValue);
-                /*
-                 * int selectedIndex = fileList.getSelectedIndex();
-                 * // Extract the directory or file name from the selected line
-                 * String selectedLine = listModel.getElementAt(selectedIndex);
-                 * 
-                 * int lastIndex = selectedLine.lastIndexOf(" - ");
-                 * //String folderName = selectedLine.substring(0, lastIndex);
-                 * //System.out.println("Current Folder Name: " + folderName);
-                 * String line = selectedLine.substring(lastIndex + 3);
-                 * 
-                 * int type = session.cd(line); // Determine if it's a folder or a file
-                 * if (type == 0) {
-                 * // 폴더를 선택한 경우
-                 * String fullPath = line;
-                 * // 이제 selectedFilePath에 선택한 파일의 전체 경로가 저장되어 있습니다.
-                 * System.out.println("Selected Folder Path: " + fullPath);
-                 * text.setText(message);
-                 * 
-                 * } else if (type == 1) {
-                 * // 파일을 선택한 경우
-                 * // "Select" 버튼을 비활성화
-                 * selectButton.setEnabled(false);
-                 * // 이제 selectedFilePath에 선택한 파일의 전체 경로가 저장되어 있습니다.
-                 * System.out.println("Selected File Path: " + line);
-                 * text.setText(message);
-                 * }
-                 */
                 upBroFrame.dispose();
             }
         });
@@ -174,7 +146,7 @@ public class upPathBrowser extends JPanel {
                                     try {
                                         Thread.sleep(50); // 0.05초 (50 밀리초) 대기
                                     } catch (InterruptedException ex) {
-                                        // 예외 처리가 필요할 수 있습니다.
+                                        ex.printStackTrace();
                                     }
                                     if (subType == 0) {
                                         listModel.addElement("folder - " + subLine);

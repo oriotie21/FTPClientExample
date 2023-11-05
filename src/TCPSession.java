@@ -52,11 +52,8 @@ public class TCPSession {
     }
 
     void sendCmd(String cmd, String arg) {
-
         String content = cmd + ASC_SP + arg + ASC_CR + ASC_LF; //cmd와 arg 사이에는 <SP>로 구분을 해야함, 명령어 끝은 <CLRF>로 구분
         sendRaw(content.getBytes());
-
-
     }
 
     void sendRaw(byte[] content) {
@@ -82,25 +79,20 @@ public class TCPSession {
         String content = "";
         boolean endOfResponse = false;
         try {
-            do{
-            content = reader.readLine();
-            String contents[] = content.split(Character.toString(ASC_CR) + Character.toString(ASC_LF));
-            for(int i = 0; i < contents.length; i++)
-            {
-            if(contents[i].length() >= 4){
-            if(Common.isNumeric(contents[i].substring(0, 3)) && contents[i].charAt(3) == ASC_SP){
-            endOfResponse = true;
-            content = contents[i];
-            break;    
-            /*
-            The last line will begin with the same code, followed
-            immediately by Space <SP>, optionally some text, and the Telnet
-            end-of-line code.
-            */
-            }} 
-            } 
-        }while(!endOfResponse);
-            
+            do {
+                content = reader.readLine();
+                String contents[] = content.split(Character.toString(ASC_CR) + Character.toString(ASC_LF));
+                for (int i = 0; i < contents.length; i++) {
+                    if (contents[i].length() >= 4) {
+                        if (Common.isNumeric(contents[i].substring(0, 3)) && contents[i].charAt(3) == ASC_SP) {
+                            endOfResponse = true;
+                            content = contents[i];
+                            break;
+                        }
+                    }
+                }
+            } while (!endOfResponse);
+
 
         } catch (IOException e) {
             // TODO Auto-generated catch block
@@ -136,7 +128,7 @@ public class TCPSession {
     private FTPResponse parseResp(String resp) {
         FTPResponse r;
 
-        if(resp==null){ //연결 끊긴 경우
+        if (resp == null) { //연결 끊긴 경우
             r = null;
             return r;
         }

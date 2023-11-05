@@ -113,7 +113,7 @@ public class downPathBrowser extends JPanel {
                 if (selectedIndex >= 0 && type == 1) {
                     fullPath = line;
                     // 이제 selectedFilePath에 선택한 파일의 전체 경로가 저장되어 있습니다.
-                    System.out.println("Selected Folder Path: " + fullPath);
+                    //System.out.println("Selected Folder Path: " + fullPath);
                     JTextArea text = downloadFileGUI.downloadPathText;
                     text.setText(line);
                 } else if (type == 0) {

@@ -144,7 +144,6 @@ public class App {
         toComponent.setFocusTraversalKeys(KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS, backwardKeys);
     }
     public static void main(String[] args) throws Exception {
-        System.out.println("Hello, World!");
         guiMain();
     }
 }

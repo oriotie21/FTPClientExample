@@ -97,14 +97,11 @@ public class uploadFileGUI extends JPanel {
             public void actionPerformed(ActionEvent e) {
 
                 if (upChoDirecText.getText() != null && upLoadFilePath != null) {
-
-                    // 업로드를 백그라운드 스레드로 실행
                     // 파일 cwd로 복사
                     Path source = Paths.get(upLoadFilePath);
                     upLoadFileName = String.valueOf(source.getFileName());
                     Path dest = Paths.get(".").resolve(upLoadFileName);
                     fileCopy(upLoadFilePath, dest.toString());
-                    System.out.println(dest.toString());
 
                     // store 함수를 호출하여 파일 업로드
                     UserFTPResponse response = session.store(upLoadFileName, new FileEventListener() {
@@ -132,10 +129,6 @@ public class uploadFileGUI extends JPanel {
                 } else {
                     JOptionPane.showMessageDialog(null, "select first", "select first", JOptionPane.ERROR_MESSAGE);
                 }
-                // 실행... 프로그래스 바 새창 열기
-                // JFrame progBar = new JFrame();
-                // progBar.add(new progressBarGUI(uploadBtn));
-
             }
         });
         upFileFrame.setVisible(true);

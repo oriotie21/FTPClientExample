@@ -2,7 +2,7 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class TCPServerSession extends Thread{
+public class TCPServerSession extends Thread {
     ServerSocket tcpServerSock;
     Socket tcpSock;
     int port;
@@ -13,43 +13,41 @@ public class TCPServerSession extends Thread{
     FileEventListener fileEventListener;
     ErrorCallback errorCallback;
 
-    public TCPServerSession(int _port, OutputStream _outf,ErrorCallback _errorCallback, FileEventListener _listener){
+    public TCPServerSession(int _port, OutputStream _outf, ErrorCallback _errorCallback, FileEventListener _listener) {
         port = _port;
         outf = _outf;
         errorCallback = _errorCallback;
         fileEventListener = _listener;
     }
 
-    public TCPServerSession(int _port, InputStream _inf, ErrorCallback _errorCallback, FileEventListener _listener){
+    public TCPServerSession(int _port, InputStream _inf, ErrorCallback _errorCallback, FileEventListener _listener) {
         port = _port;
         inf = _inf;
         errorCallback = _errorCallback;
         fileEventListener = _listener;
     }
 
-    void saveBytesToFile(){
-        byte[] buf= new byte[512];
+    void saveBytesToFile() {
+        byte[] buf = new byte[512];
         int rbytes = 0;
         int bytesTotal = 0;
-        try{
+        try {
             isTransfering = true;
-            while(!eof || getDataSocketInputStream().available() > 0){
-            rbytes = getDataSocketInputStream().read(buf);
-            if(rbytes > 0){
-                outf.write(buf, 0, rbytes);
-                bytesTotal += rbytes;
-                if(fileEventListener != null)
-                    fileEventListener.onProgressChanged(bytesTotal);
+            while (!eof || getDataSocketInputStream().available() > 0) {
+                rbytes = getDataSocketInputStream().read(buf);
+                if (rbytes > 0) {
+                    outf.write(buf, 0, rbytes);
+                    bytesTotal += rbytes;
+                    if (fileEventListener != null)
+                        fileEventListener.onProgressChanged(bytesTotal);
+                }
             }
-            }
-            System.out.println("file written : "+bytesTotal+"bytes");
 
-        }
-        catch(Exception e){
-
+        } catch (Exception e) {
+            errorCallback.onError(e);
         }
         isTransfering = false;
-        if(fileEventListener != null)
+        if (fileEventListener != null)
             fileEventListener.onProgressFinished();
         //close stream and socket
         try {
@@ -60,7 +58,8 @@ public class TCPServerSession extends Thread{
             errorCallback.onError(e);
         }
     }
-    void sendBytes(){
+
+    void sendBytes() {
         //inputstream에서 가져옴
 
         //소켓 outputstream 가져오기
@@ -68,63 +67,71 @@ public class TCPServerSession extends Thread{
             byte[] buf = new byte[512];
             int wbytes = 0;
             int totalBytes = 0;
-			DataOutputStream oStream = new DataOutputStream(getDataSocketOutputStream());
+            DataOutputStream oStream = new DataOutputStream(getDataSocketOutputStream());
             //inputstream 고갈 전까지 쓰기
             isTransfering = true;
-            while(inf.available() > 0){
-            wbytes = inf.read(buf);
-            oStream.write(buf, 0, wbytes);
-            totalBytes += wbytes;
-            if(fileEventListener != null)
-                fileEventListener.onProgressChanged(totalBytes);
+            while (inf.available() > 0) {
+                wbytes = inf.read(buf);
+                oStream.write(buf, 0, wbytes);
+                totalBytes += wbytes;
+                if (fileEventListener != null)
+                    fileEventListener.onProgressChanged(totalBytes);
             }
             //소켓 닫아서 FIN 패킷 보내기
             isTransfering = false;
             inf.close();
             closeDataSocket();
             fileEventListener.onProgressFinished();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			errorCallback.onError(e);
-		}
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            errorCallback.onError(e);
+        }
 
 
     }
-    public void run(){
+
+    public void run() {
 
         listen();
-        if(inf == null && outf != null) //매개변수가 OutputStream일때
-        saveBytesToFile();
-        else if(outf == null && inf != null) //매개변수가 InputStream일때
-        sendBytes();
+        if (inf == null && outf != null) //매개변수가 OutputStream일때
+            saveBytesToFile();
+        else if (outf == null && inf != null) //매개변수가 InputStream일때
+            sendBytes();
         else
-        System.out.println("something went wrong");
-
+            System.out.println("something went wrong");
     }
-    private void listen(){
+
+    private void listen() {
 
         try {
             tcpServerSock = new ServerSocket(port);
-            System.out.println("Listening on "+Integer.toString(port));
+            //System.out.println("Listening on " + Integer.toString(port));
             tcpSock = tcpServerSock.accept();
-            System.out.println("ftp data connection established");
+            //System.out.println("ftp data connection established");
         } catch (IOException e) {
             // TODO Auto-generated catch block
             errorCallback.onError(e);
         }
     }
-    public void download(){
+
+    public void download() {
         this.start();
     }
-    public void upload(){
+
+    public void upload() {
         this.start();
     }
-    public void nlst() { this.start(); }
-    public void setEOF(boolean b){
+
+    public void nlst() {
+        this.start();
+    }
+
+    public void setEOF(boolean b) {
         eof = b;
     }
-    public boolean isTransferFinished(){
-        if(tcpSock != null)
+
+    public boolean isTransferFinished() {
+        if (tcpSock != null)
             return tcpSock.isClosed();
         return true;
     }

@@ -25,13 +25,6 @@ import java.util.concurrent.CompletableFuture;
  *
  */
 public class FTPSession {
-    static final int STATUS_DATA_CONNECTION_FAIL = 425;
-    static final int STATUS_CONNECTIONS_CLOSE_TRANSMISSION_STOP = 426;
-    static final int STATUS_USING_FILE_FAIL = 450;
-    static final int STATUS_ACTION_FAIL = 451;
-    static final int STATUS_STORAGE_FAIL = 452;
-    static final int STATUS_LOGIN_FAIL = 530;
-    static final int STATUS_NEED_ACCOUNT_STORE_FILE = 532;
     static final int STATUS_FILE_NOT_USE = 550; //파일 없음, 액세스 못함(권한X)
 
 
@@ -44,14 +37,10 @@ public class FTPSession {
     static final int STATUS_TRANSFER_READY = 150;
     static final int STATUS_TRANSFER_OK = 226;
     static final int STATUS_FILENAME_OK = 257;
-    static final int STATUS_CMD_OK = 200;
     static final int STATUS_SERVICE_READY = 220;
     static final int STATUS_ACTION_OK = 250;
     static final int STATUS_LOGIN_SUCCSS = 230;
     static final int STATUS_NEED_PW = 331;
-    static final int STATUS_TIMEOUT = 421;
-    static final int STATUS_GOODBYE = 221;
-    static final int STATUS_FILE_STAT = 213;
 
     static String CMD_CWD = "CWD";
     static String CMD_PASS = "PASS";
@@ -61,7 +50,6 @@ public class FTPSession {
     static String CMD_RETR = "RETR";
     static String CMD_STOR = "STOR";
     static String CMD_OPTS = "OPTS";
-    static String CMD_LIST = "LIST";
     static String CMD_NLST = "NLST";
     static String CMD_PWD = "PWD";
 
@@ -98,8 +86,8 @@ public class FTPSession {
 
         //응답받기
         int code = tcpSession.getResponse().code;
-        //성공 여부 반환
 
+        //성공 여부 반환
         if (code == STATUS_SERVICE_READY) {
             connected = true;
         }
@@ -234,7 +222,7 @@ public class FTPSession {
 
             @Override
             public void onProgressFinished() {
-            
+
             }
         });
         return r;
@@ -370,13 +358,9 @@ public class FTPSession {
 
     boolean isAlive() {
         return tcpSession.isAlive();
-        //마지막 Response 받아오기(있다면?) -> 필수 아님
-        //최종적으로 소켓 연결여부 확인해서 반환 isConnected() ?
     }
 
     private int getDataPort() {
-        //Random random = new Random();
-        //random.setSeed(System.currentTimeMillis());
         int randPort = new Random().nextInt(PORT_MAX - PORT_INC_BASE) + PORT_INC_BASE;
         return randPort;
     }
