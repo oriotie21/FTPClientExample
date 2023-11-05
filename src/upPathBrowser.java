@@ -41,6 +41,11 @@ public class upPathBrowser extends JPanel {
                     String[] lines = response.message.split("\r\n");
                     for (String line : lines) {
                         int type = session.cd(line); // Determine if it's a folder or a file
+                        try {
+                            Thread.sleep(50); // 0.05초 (50 밀리초) 대기
+                        } catch (InterruptedException ex) {
+                            // 예외 처리가 필요할 수 있습니다.
+                        }
                         if (type == 0) {
                             listModel.addElement("folder - " + line);
                             session.cd("..");
@@ -69,6 +74,11 @@ public class upPathBrowser extends JPanel {
                         String[] lines = response.message.split("\r\n");
                         for (String line : lines) {
                             int type = session.cd(line); // Determine if it's a folder or a file
+                            try {
+                                Thread.sleep(50); // 0.05초 (50 밀리초) 대기
+                            } catch (InterruptedException ex) {
+                                // 예외 처리가 필요할 수 있습니다.
+                            }
                             if (type == 0) {
                                 listModel.addElement("folder - " + line);
                                 session.cd("..");
@@ -77,8 +87,7 @@ public class upPathBrowser extends JPanel {
                             }
                         }
                     }
-                }
-                else{
+                } else {
                     JOptionPane.showMessageDialog(null, "상위 폴더가 존재하지 않습니다.", "에러", JOptionPane.ERROR_MESSAGE);
                 }
             }
@@ -89,22 +98,31 @@ public class upPathBrowser extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 int selectedIndex = fileList.getSelectedIndex();
-                if (selectedIndex >= 0) {
-                    UserFTPResponse path = session.pwd();
-                    String message = path.message;
-                   
-                    // Extract the directory or file name from the selected line
-                    String selectedLine = listModel.getElementAt(selectedIndex);
-                    
-                    // Extract current folder name
-                    int lastIndex = selectedLine.lastIndexOf(" - ");
-                    if (lastIndex != -1) {
-                        String folderName = selectedLine.substring(0, lastIndex);
-                        System.out.println("Current Folder Name: " + folderName);
-                    }
-        
-                    String line = selectedLine.substring(lastIndex + 3);
-                    
+                // Extract the directory or file name from the selected line
+                String selectedLine = listModel.getElementAt(selectedIndex);
+
+                int lastIndex = selectedLine.lastIndexOf(" - ");
+                String folderName = selectedLine.substring(0, lastIndex);
+                System.out.println("Current Folder Name: " + folderName);
+                if (lastIndex != -1) {
+
+                }
+                String line = selectedLine.substring(lastIndex + 3);
+
+                int type = session.cd(line); // Determine if it's a folder or a file
+                if (selectedIndex >= 0 && type == 0) {
+
+                    // 폴더를 선택한 경우
+                    String fullPath = line;
+                    // 이제 selectedFilePath에 선택한 파일의 전체 경로가 저장되어 있습니다.
+                    System.out.println("Selected Folder Path: " + fullPath);
+                    JTextArea text = uploadFileGUI.uploadPathText;
+                    text.setText(line);
+
+                } else if (type == 1) {
+                    // 파일을 선택한 경우
+                    // "Select" 버튼을 비활성화
+                    selectButton.setEnabled(false);
                     // 이제 selectedFilePath에 선택한 파일의 전체 경로가 저장되어 있습니다.
                     System.out.println("Selected File Path: " + line);
                     JTextArea text = uploadFileGUI.uploadPathText;
@@ -113,6 +131,7 @@ public class upPathBrowser extends JPanel {
                 upBroFrame.dispose();
             }
         });
+
         // Add mouse listener to the file list
         fileList.addMouseListener(new MouseAdapter() {
             @Override
@@ -133,6 +152,11 @@ public class upPathBrowser extends JPanel {
                                 String[] lines = response.message.split("\r\n");
                                 for (String subLine : lines) {
                                     int subType = session.cd(subLine);
+                                    try {
+                                        Thread.sleep(50); // 0.05초 (50 밀리초) 대기
+                                    } catch (InterruptedException ex) {
+                                        // 예외 처리가 필요할 수 있습니다.
+                                    }
                                     if (subType == 0) {
                                         listModel.addElement("folder - " + subLine);
                                         session.cd("..");
