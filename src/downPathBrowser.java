@@ -19,7 +19,7 @@ public class downPathBrowser extends JPanel {
     static String fullPath = null;
 
     public downPathBrowser() {
-        JFrame upBroFrame = new JFrame("path");
+        JFrame upBroFrame = new JFrame("select file");
         JPanel upBroPanel = new JPanel();
         JButton listFilesButton = new JButton("List Files");
         JButton upButton = new JButton("Go Up");
