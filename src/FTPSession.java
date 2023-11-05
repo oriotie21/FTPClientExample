@@ -38,7 +38,7 @@ public class FTPSession {
     static final String NO_FILE = "No such file";
     static final String NO_FILE_OR_FOLDER = "No such file or folder";
     static final String NO_PERMISSION = "Permission Denied";
-    
+
 
     static final int STATUS_TRANSFER_READY = 150;
     static final int STATUS_TRANSFER_OK = 226;
@@ -91,8 +91,7 @@ public class FTPSession {
 
     boolean connect() {
         //연결
-        if(!tcpSession.connect()){
-            System.out.println("유효하지 않은 호스트입니다.");
+        if (!tcpSession.connect()) {
             return false;
         }
 
@@ -102,8 +101,6 @@ public class FTPSession {
 
         if (code == STATUS_SERVICE_READY) {
             connected = true;
-        } else { // 예외처리
-            connectionErrorHandling(code);
         }
         return connected;
     }
@@ -118,16 +115,9 @@ public class FTPSession {
             r = request(CMD_PASS, _password);
             if (r.code == STATUS_LOGIN_SUCCSS) {
                 request(CMD_OPTS, ENCODE_TYPE); //enable UTF-8 encoding
-                loginSuccess = true;
-            } else {
-                loginErrorHandling(r.code); // 에러처리 추가
-                return false;
+                loginSuccess = true; //_username과 _password가 일치할 떄에만 true값을 가질 수 있음
             }
-        } else {
-            loginErrorHandling(r.code); // 에러처리 추가
-            return false;
         }
-
         return loginSuccess;
     }
 
@@ -135,22 +125,20 @@ public class FTPSession {
         if (!isInputReady())
             return null;
         FTPResponse r = request(CMD_CWD, _path);
-         
+
         if (r.code == STATUS_ACTION_OK) { //XPWD 명령사용도 가능(하지만 사용 안함)
             return _path;
         } else {
-            transmissionErrorHandling(r, _path, null, null, null);
-            loginErrorHandling(r.code);
             return null;
         }
     }
-    
-    UserFTPResponse pwd(){
-        if(!isInputReady())
+
+    UserFTPResponse pwd() {
+        if (!isInputReady())
             return null;
         UserFTPResponse result;
         FTPResponse r = request(CMD_PWD, "");
-        if(r.code != STATUS_FILENAME_OK){
+        if (r.code != STATUS_FILENAME_OK) {
             result = new UserFTPResponse(false, r.code, r.message);
             return result;
         }
@@ -165,7 +153,6 @@ public class FTPSession {
         tcpSession.sendCmd(CMD_QUIT, "");
         tcpSession.getResponse();
         connected = false;
-
     }
 
     int cd(String _path) {
@@ -175,12 +162,10 @@ public class FTPSession {
 
         if (r.code == STATUS_ACTION_OK) {
             return 0; // 폴더
-        } else if(r.code == STATUS_FILE_NOT_USE){
+        } else if (r.code == STATUS_FILE_NOT_USE) {
             return 1; //파일
-        }else {
-            transmissionErrorHandling(r, _path, null, null, null);
-            loginErrorHandling(r.code);
-            return -1;
+        } else {
+            return -1; //에러
         }
     }
 
@@ -251,10 +236,6 @@ public class FTPSession {
 
             }
         });
-
-        //에러 여부 확인 및 처리
-        transmissionErrorHandling(r, null, fname, outf, listener);
-        loginErrorHandling(r.code);
         return r;
     }
 
@@ -271,7 +252,7 @@ public class FTPSession {
 
         final byte[][] output = {new byte[512]}; // 폴더 및 파일명 저장 inputStream
         ByteArrayOutputStream ous = new ByteArrayOutputStream();
-        
+
         dataSession = new TCPServerSession(uport, ous, errorCallback, fileEventListener);
         dataSession.nlst();
         final String[] outputStr = {""};
@@ -280,6 +261,7 @@ public class FTPSession {
             public void onProgressChanged(int currentByte) {
 
             }
+
             @Override
             public void onProgressFinished() {
                 output[0] = ous.toByteArray();
@@ -289,13 +271,8 @@ public class FTPSession {
                     // TODO Auto-generated catch block
                     errorCallback.onError(e);
                 }
-                System.out.println(outputStr[0]);
             }
         });
-
-        //에러 여부 확인 및 처리
-        transmissionErrorHandling(r, null, null, null, null);
-        loginErrorHandling(r.code);
 
         //성공시
         r.success = true;
@@ -320,8 +297,8 @@ public class FTPSession {
         try {
             //업로드 준비
             File file = new File(fname);
-            if(!file.exists()){
-                System.out.println("존재하지 않는 파일입니다.");
+            if (!file.exists()) { //선택한 파일이 존재하지 않는 경우
+                return null;
             }
             FileInputStream fis = new FileInputStream(file);
             dataSession = new TCPServerSession(uport, fis, errorCallback, fileEventListener);
@@ -337,13 +314,9 @@ public class FTPSession {
 
                 }
             });
-
-            transmissionErrorHandling(r, null, fname, null, listener);
-            loginErrorHandling(r.code);
         } catch (FileNotFoundException e) {
-            // 에러 확인 및 처리
-            transmissionErrorHandling(r, null, fname, null, listener);
-            loginErrorHandling(r.code);
+            System.out.println(e.getMessage());
+            return null;
         }
         return r;
     }
@@ -352,8 +325,8 @@ public class FTPSession {
         FTPResponse r = request(cmd, fname);
         if (r.code == STATUS_TRANSFER_READY) {
             r = tcpSession.getResponse();
-            if(r==null){ //연결 끊긴 경우 연결 종료
-                System.out.println("전송이 중단되었습니다.");
+            if (r == null) { //연결 끊긴 경우 연결 종료
+                //System.out.println("전송이 중단되었습니다.");
                 quit();
             }
             boolean recvok = false;
@@ -362,7 +335,7 @@ public class FTPSession {
              * 파일 다운로드 완료 시 응답코드 리턴
              */
             session.setEOF(true);
-            if (r.code == STATUS_TRANSFER_OK){
+            if (r.code == STATUS_TRANSFER_OK) {
                 System.out.println("transfer success");
                 recvok = true;
             }
@@ -398,7 +371,6 @@ public class FTPSession {
         return tcpSession.isAlive();
         //마지막 Response 받아오기(있다면?) -> 필수 아님
         //최종적으로 소켓 연결여부 확인해서 반환 isConnected() ?
-
     }
 
     private int getDataPort() {
@@ -407,169 +379,4 @@ public class FTPSession {
         int randPort = new Random().nextInt(PORT_MAX - PORT_INC_BASE) + PORT_INC_BASE;
         return randPort;
     }
-
-
-    private void connectionErrorHandling(int statusCode) {
-        if (statusCode == STATUS_DATA_CONNECTION_FAIL) {
-            Scanner scanner = new Scanner(System.in);
-            System.out.println("다시 연결 하시겠습니까? 하려면 1 , 연결을 종료하려면 0을 입력하세요");
-            int userInput = scanner.nextInt();
-            scanner.close();
-
-            if (userInput == 1) {
-                //다시 연결 구현
-                connect();
-            } else if (userInput == 0) {
-                //연결 종료 구현
-                System.out.println("end");
-            } else {
-                System.out.println("잘못된 입력 값입니다.");
-            }
-        }
-    }
-
-    private void transmissionErrorHandling(FTPResponse r, String _path, String fname, OutputStream outf, FileEventListener listener) {
-        String callingMethod = getCallingMethod();
-
-        if (r.code == STATUS_CONNECTIONS_CLOSE_TRANSMISSION_STOP) {  //연결이 닫히고 전송이 중단된 경우(전송이 강제 종료된 경우)
-            Scanner scanner = new Scanner(System.in);
-            System.out.println("연결 실패. 다시 연결 하시겠습니까? 하려면 1 , 연결을 종료하려면 0을 입력하세요");
-            int userInput = scanner.nextInt();
-            scanner.close();
-
-            if (userInput == 1) {
-                //다시 연결 후 전송
-                connect();
-
-                switch (callingMethod) {
-                    case "store" -> store(fname, listener);
-                    case "retrieve" -> retrieve(fname, outf, listener);
-                    case "nlst" -> nlst();
-                }
-            } else if (userInput == 0) {
-                quit();
-            } else {
-                System.out.println("잘못된 입력 값입니다.");
-            }
-        } else if (r.code == STATUS_DATA_CONNECTION_FAIL) {  //연결이 닫히고 전송이 중단된 경우(전송이 강제 종료된 경우)
-            Scanner scanner = new Scanner(System.in);
-            System.out.println("전송이 중단되었습니다. 다시 시도(전송) 하시겠습니까? 하려면 1 , 연결을 종료하려면 0을 입력하세요");
-            int userInput = scanner.nextInt();
-            scanner.close();
-
-            if (userInput == 1) {
-                //다시 연결 후 전송
-                connect();
-
-                switch (callingMethod) {
-                    case "store" -> store(fname, listener);
-                    case "retrieve" -> retrieve(fname, outf, listener);
-                    case "nlst" -> nlst();
-                }
-            } else if (userInput == 0) {
-                quit();
-            } else {
-                System.out.println("잘못된 입력 값입니다.");
-            }
-        } else if (r.code == STATUS_USING_FILE_FAIL) { // 요청된 파일 동작 실패. 파일 사용할 수 없는 경우(ex. 파일 사용 중)
-            System.out.println("해당 파일을 사용할 수 없습니다.");
-        } else if (r.code == STATUS_ACTION_FAIL) { //요청된 동작 중단. 처리 중 로컬 오류 발생
-            Scanner scanner = new Scanner(System.in);
-            System.out.println("로컬오류가 발생하여 요청된 동작이 중단되었습니다. 다시 시도 하시겠습니까? 하려면 1 , 연결을 종료하려면 0을 입력하세요");
-            int userInput = scanner.nextInt();
-            scanner.close();
-
-            if (userInput == 1) {
-                //다시 연결을 해야하나?
-
-                //다시 동작 구현
-                switch (callingMethod) {
-                    case "cwd" -> cwd(_path);
-                    case "store" -> store(fname, listener);
-                    case "retrieve" -> retrieve(fname, outf, listener);
-                    case "nlst" -> nlst();
-                }
-            } else if (userInput == 0) {
-                //연결 종료 구현
-                quit();
-            } else {
-                System.out.println("잘못된 입력 값입니다.");
-            }
-        } else if (r.code == STATUS_STORAGE_FAIL) {//요청된 동작 수행X. 시스템 저장 공간 부족
-            // 시스템 저장 공간 부족 하다는 알림 후 동작 종료
-            System.out.println("저장공간이 부족합니다.");
-        } else if (r.code == STATUS_NEED_ACCOUNT_STORE_FILE) {//파일 저장하는데 계정이 필요
-            Scanner scanner = new Scanner(System.in);
-            //유효한 사용자 계정으로 로그인할지 or 연결 종료할지 질의
-            System.out.println("인증된 계정이 필요합니다. 유효한 사용자 계정으로 로그인 하려면 1, 연결을 종료하려면 0을 입력해 주세요");
-            int userInput = scanner.nextInt();
-            scanner.close();
-
-            if (userInput == 1) {
-                //연결 종료 후 다시 로그인 시도
-                quit();
-                login(_username, _password);
-            } else if (userInput == 0) {
-                //연결 종료 구현
-                quit();
-            } else {
-                System.out.println("잘못된 입력 값입니다.");
-            }
-        } else if (r.code == STATUS_FILE_NOT_USE) {//잘못된 경로(파일 없음, 액세스 권한 없음)
-            //잘못된 경로 or 존재하지 않는 파일 or 액세스 권한 없다는 알림 후 동작 종료
-            
-            System.out.println(r.code + ": 잘못된 파일 엑세스");
-        }
-    }
-
-    private void loginErrorHandling(int statusCode) {
-        int userInput;
-
-        if (statusCode == STATUS_LOGIN_FAIL) {
-            System.out.println("로그인에 실패하였습니다. 다시 시도하여 주세요.");
-            quit();
-            connect();
-            //login(_username, _password);
-        } else if (statusCode == STATUS_NEED_ACCOUNT_STORE_FILE) {
-            Scanner scanner = new Scanner(System.in);
-            System.out.println("인증된 계정이 필요합니다. 유효한 사용자 계정으로 로그인 하려면 1, 연결을 종료하려면 0을 입력해 주세요");
-            userInput = scanner.nextInt();
-            scanner.close();
-
-            if (userInput == 1) {
-                //연결 종료 후 다시 로그인 시도
-                quit();
-                //login(_username, _password);
-            } else if (userInput == 0) {
-                //연결 종료 구현
-                quit();
-            } else {
-                System.out.println("잘못된 입력 값입니다.");
-            }
-        }
-    }
-
-    //자신을 호출한 메소드의 정보를 가져오는 메소드
-    public static String getCallingMethod() {
-        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
-        String methodName = stackTrace[3].getMethodName();
-
-        return methodName;
-    }
-    /**
-     * 연결 중 나타날 수 있는 에러
-     * 425: 다시 연결 시도 할지 사용자에게 질의
-     *
-     * 전송 중 나타날 수 있는 에러
-     * 426: 다시 연결 후 전송 할지 연결 종료 할지 질의
-     * 450: 파일을 사용할 수 없다' 라고 알림 후 동작 종료
-     * 451: 로컬 오류 발생했다는 알림 후 다시 동작 요청할 지 연결 종료할 지 사용자에게 질의
-     * 452: 시스템 저장 공간 부족 하다는 알림 후 동작 종료
-     * 532: 유효한 사용자 계정으로 로그인할지 or 연결 종료할지 질의
-     * 550: 잘못된 경로 or 존재하지 않는 파일 or 액세스 권한 없다는 알림 후 동작 종료
-     *
-     * 로그인 중 나타날  수 있는 에러
-     * 530: 로그인 실패했다는 알림 후 다시 로그인 재시도
-     * 532: 유효한 사용자 계정으로 로그인할지 or 연결 종료할지 질의
-     */
 }
