@@ -17,6 +17,7 @@ public class downPathBrowser extends JPanel {
 
     FTPSession session = App.session;
     static String fullPath = null;
+
     public downPathBrowser() {
         JFrame upBroFrame = new JFrame("path");
         JPanel upBroPanel = new JPanel();
@@ -34,7 +35,6 @@ public class downPathBrowser extends JPanel {
 
         selectButton.setBounds(280, 220, 100, 20);
 
-
         listFilesButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -45,17 +45,22 @@ public class downPathBrowser extends JPanel {
                     String[] lines = response.message.split("\r\n");
                     for (String line : lines) {
                         int type = session.cd(line); // Determine if it's a folder or a file
+                        try {
+                            Thread.sleep(50); // 0.05초 (50 밀리초) 대기
+                        } catch (InterruptedException ex) {
+                            // 예외 처리가 필요할 수 있습니다.
+                        }
                         if (type == 0) {
                             listModel.addElement("folder - " + line);
                             session.cd("..");
-                        } else if (type == 1) {
+                        }
+                        if (type == 1) {
                             listModel.addElement("file - " + line);
                         }
                     }
                 }
             }
         });
-        
 
         // Add action listener to the "Go Up" button
         upButton.addActionListener(new ActionListener() {
@@ -76,16 +81,21 @@ public class downPathBrowser extends JPanel {
                         String[] lines = response.message.split("\r\n");
                         for (String line : lines) {
                             int type = session.cd(line); // Determine if it's a folder or a file
+                            try {
+                                Thread.sleep(50); // 0.05초 (50 밀리초) 대기
+                            } catch (InterruptedException ex) {
+                                // 예외 처리가 필요할 수 있습니다.
+                            }
                             if (type == 0) {
                                 listModel.addElement("folder - " + line);
                                 session.cd("..");
-                            } else if (type == 1) {
+                            }
+                            if (type == 1) {
                                 listModel.addElement("file - " + line);
                             }
                         }
                     }
-                }
-                else{
+                } else {
                     JOptionPane.showMessageDialog(null, "상위 폴더가 존재하지 않습니다.", "에러", JOptionPane.ERROR_MESSAGE);
                 }
             }
@@ -96,36 +106,19 @@ public class downPathBrowser extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 int selectedIndex = fileList.getSelectedIndex();
-                if (selectedIndex >= 0) {
-                    UserFTPResponse path = session.pwd();
-                    String message = path.message;
-               
-                    // Extract the directory or file name from the selected line
-                    String selectedLine = listModel.getElementAt(selectedIndex);     
-                    String line = selectedLine.substring(selectedLine.lastIndexOf(" - ") + 3);
-
-
-                    
-                    String pattern = "\"(.*?)\"";
-                    Pattern r = Pattern.compile(pattern);
-
-                    Matcher messageMatcher = r.matcher(message);
-
-                    String messageContent = "";
-                    
-                    // message에서 따옴표 안의 값을 추출
-                    if (messageMatcher.find()) {
-                        messageContent = messageMatcher.group(1);
-                    }
-                    // 따옴표 안의 값을 합쳐서 경로 문자열 생성
-                    //fullPath = messageContent + "/" + line;  
+                // Extract the directory or file name from the selected line
+                String selectedLine = listModel.getElementAt(selectedIndex);
+                String line = selectedLine.substring(selectedLine.lastIndexOf(" - ") + 3);
+                int type = session.cd(line); // Determine if it's a folder or a file
+                if (selectedIndex >= 0 && type == 0) {
                     fullPath = line;
-
-                    
                     // 이제 selectedFilePath에 선택한 파일의 전체 경로가 저장되어 있습니다.
-                    System.out.println("Selected File Path: " + line);
+                    System.out.println("Selected Folder Path: " + fullPath);
                     JTextArea text = downloadFileGUI.downloadPathText;
                     text.setText(line);
+                } else if (type == 1) {
+                    // 파일을 선택한 경우
+                    JOptionPane.showMessageDialog(null, "폴더가 아닌 파일은 선택할 수 없습니다.", "에러", JOptionPane.ERROR_MESSAGE);
                 }
                 upBroFrame.dispose();
             }
@@ -137,7 +130,7 @@ public class downPathBrowser extends JPanel {
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 2) {
                     int selectedIndex = fileList.getSelectedIndex();
-                    
+
                     if (selectedIndex >= 0) {
                         String selectedLine = listModel.getElementAt(selectedIndex);
                         // Extract the directory or file name from the selected line
@@ -151,10 +144,16 @@ public class downPathBrowser extends JPanel {
                                 String[] lines = response.message.split("\r\n");
                                 for (String subLine : lines) {
                                     int subType = session.cd(subLine);
+                                    try {
+                                        Thread.sleep(50); // 0.05초 (50 밀리초) 대기
+                                    } catch (InterruptedException ex) {
+                                        // 예외 처리가 필요할 수 있습니다.
+                                    }
                                     if (subType == 0) {
                                         listModel.addElement("folder - " + subLine);
                                         session.cd("..");
-                                    } else if (subType == 1) {
+                                    }
+                                    if (subType == 1) {
                                         listModel.addElement("file - " + subLine);
                                     }
                                 }
