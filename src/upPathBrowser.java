@@ -102,9 +102,10 @@ public class upPathBrowser extends JPanel {
                 String selectedLine = listModel.getElementAt(selectedIndex);
 
                 int lastIndex = selectedLine.lastIndexOf(" - ");
+                String folderName = selectedLine.substring(0, lastIndex);
+                System.out.println("Current Folder Name: " + folderName);
                 if (lastIndex != -1) {
-                    String folderName = selectedLine.substring(0, lastIndex);
-                    System.out.println("Current Folder Name: " + folderName);
+
                 }
                 String line = selectedLine.substring(lastIndex + 3);
 

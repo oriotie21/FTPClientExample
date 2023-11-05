@@ -110,15 +110,15 @@ public class downPathBrowser extends JPanel {
                 String selectedLine = listModel.getElementAt(selectedIndex);
                 String line = selectedLine.substring(selectedLine.lastIndexOf(" - ") + 3);
                 int type = session.cd(line); // Determine if it's a folder or a file
-                if (selectedIndex >= 0 && type == 0) {
+                if (selectedIndex >= 0 && type == 1) {
                     fullPath = line;
                     // 이제 selectedFilePath에 선택한 파일의 전체 경로가 저장되어 있습니다.
                     System.out.println("Selected Folder Path: " + fullPath);
                     JTextArea text = downloadFileGUI.downloadPathText;
                     text.setText(line);
-                } else if (type == 1) {
+                } else if (type == 0) {
                     // 파일을 선택한 경우
-                    JOptionPane.showMessageDialog(null, "폴더가 아닌 파일은 선택할 수 없습니다.", "에러", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(null, "폴더는 선택할 수 없습니다.", "에러", JOptionPane.ERROR_MESSAGE);
                 }
                 upBroFrame.dispose();
             }
