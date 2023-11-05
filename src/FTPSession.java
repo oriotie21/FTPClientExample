@@ -240,7 +240,17 @@ public class FTPSession {
             return ur;
         //RETR <fname> 입력
         UserFTPResponse r;
-        r = waitForTrasfer(dataSession, CMD_RETR, fname, null);
+        r = waitForTrasfer(dataSession, CMD_RETR, fname, new FileEventListener() {
+            @Override
+            public void onProgressChanged(int currentByte) {
+
+            }
+
+            @Override
+            public void onProgressFinished() {
+
+            }
+        });
 
         //에러 여부 확인 및 처리
         transmissionErrorHandling(r, null, fname, outf, listener);
@@ -316,7 +326,17 @@ public class FTPSession {
             FileInputStream fis = new FileInputStream(file);
             dataSession = new TCPServerSession(uport, fis, errorCallback, fileEventListener);
             dataSession.upload();
-            waitForTrasfer(dataSession, CMD_STOR, fname, null);
+            waitForTrasfer(dataSession, CMD_STOR, fname, new FileEventListener() {
+                @Override
+                public void onProgressChanged(int currentByte) {
+
+                }
+
+                @Override
+                public void onProgressFinished() {
+
+                }
+            });
 
             transmissionErrorHandling(r, null, fname, null, listener);
             loginErrorHandling(r.code);
