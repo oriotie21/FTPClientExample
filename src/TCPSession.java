@@ -87,7 +87,6 @@ public class TCPSession {
             String contents[] = content.split(Character.toString(ASC_CR) + Character.toString(ASC_LF));
             for(int i = 0; i < contents.length; i++)
             {
-            System.out.println("answer : "+contents[i]);
             if(contents[i].length() >= 4){
             if(Common.isNumeric(contents[i].substring(0, 3)) && contents[i].charAt(3) == ASC_SP){
             endOfResponse = true;

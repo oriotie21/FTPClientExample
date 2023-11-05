@@ -38,11 +38,11 @@ public class TCPServerSession extends Thread{
             if(rbytes > 0){
                 outf.write(buf, 0, rbytes);
                 bytesTotal += rbytes;
-                fileEventListener.onProgressChanged(bytesTotal);
+                if(fileEventListener != null)
+                    fileEventListener.onProgressChanged(bytesTotal);
             }
             }
             System.out.println("file written : "+bytesTotal+"bytes");
-            fileEventListener.onProgressFinished();
 
         }
         catch(Exception e){
@@ -90,7 +90,6 @@ public class TCPServerSession extends Thread{
 
     }
     public void run(){
-
 
         listen();
         if(inf == null && outf != null) //매개변수가 OutputStream일때

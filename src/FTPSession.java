@@ -40,6 +40,7 @@ public class FTPSession {
     static final String NO_PERMISSION = "Permission Denied";
     
 
+    static final int STATUS_ALREADY_OPENED = 125;
     static final int STATUS_TRANSFER_READY = 150;
     static final int STATUS_TRANSFER_OK = 226;
     static final int STATUS_FILENAME_OK = 257;
@@ -248,7 +249,7 @@ public class FTPSession {
 
             @Override
             public void onProgressFinished() {
-
+            
             }
         });
 
@@ -350,7 +351,7 @@ public class FTPSession {
 
     UserFTPResponse waitForTrasfer(TCPServerSession session, String cmd, String fname, FileEventListener listener) {
         FTPResponse r = request(cmd, fname);
-        if (r.code == STATUS_TRANSFER_READY) {
+        if (r.code == STATUS_TRANSFER_READY || r.code == STATUS_ALREADY_OPENED) {
             r = tcpSession.getResponse();
             if(r==null){ //연결 끊긴 경우 연결 종료
                 System.out.println("전송이 중단되었습니다.");
