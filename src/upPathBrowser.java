@@ -59,6 +59,8 @@ public class upPathBrowser extends JPanel {
                                 JOptionPane.showMessageDialog(null, "Server Response NULL", "Error", JOptionPane.ERROR_MESSAGE);
                         } else if (type == 1) {
                             listModel.addElement("file - " + line);
+                        }else{
+                            JOptionPane.showMessageDialog(null, "Server Response NULL", "Error", JOptionPane.ERROR_MESSAGE);
                         }
                     }
                 }else {
@@ -94,9 +96,11 @@ public class upPathBrowser extends JPanel {
                                 listModel.addElement("folder - " + line);
                                 int cdResult = session.cd("..");
                                 if(cdResult == -1)
-                                    JOptionPane.showMessageDialog(null, "Server Response NULL", "Error", JOptionPane.INFORMATION_MESSAGE);
+                                    JOptionPane.showMessageDialog(null, "Server Response NULL", "Error", JOptionPane.ERROR_MESSAGE);
                             } else if (type == 1) {
                                 listModel.addElement("file - " + line);
+                            }else{
+                                JOptionPane.showMessageDialog(null, "Server Response NULL", "Error", JOptionPane.ERROR_MESSAGE);
                             }
                         }
                     }
@@ -158,12 +162,14 @@ public class upPathBrowser extends JPanel {
                                         listModel.addElement("folder - " + subLine);
                                         int cdResult = session.cd("..");
                                         if(cdResult == -1)
-                                            JOptionPane.showMessageDialog(null, "Server Response NULL", "Error", JOptionPane.INFORMATION_MESSAGE);
+                                            JOptionPane.showMessageDialog(null, "Server Response NULL", "Error", JOptionPane.ERROR_MESSAGE);
                                     } else if (subType == 1) {
                                         listModel.addElement("file - " + subLine);
                                     }
                                 }
                             }
+                        }else{
+                            JOptionPane.showMessageDialog(null, "Server Response NULL", "Error", JOptionPane.ERROR_MESSAGE);
                         }
                     }
                 }
