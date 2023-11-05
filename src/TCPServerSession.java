@@ -80,6 +80,7 @@ public class TCPServerSession extends Thread{
             }
             //소켓 닫아서 FIN 패킷 보내기
             isTransfering = false;
+            inf.close();
             closeDataSocket();
             fileEventListener.onProgressFinished();
 		} catch (IOException e) {

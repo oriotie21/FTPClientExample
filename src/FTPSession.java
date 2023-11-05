@@ -312,7 +312,7 @@ public class FTPSession {
 
                 @Override
                 public void onProgressFinished() {
-
+                    file.delete();
                 }
             });
         } catch (FileNotFoundException e) {
