@@ -81,6 +81,7 @@ public class TCPSession {
         try {
             do {
                 content = reader.readLine();
+                if(content == null) return null;
                 String contents[] = content.split(Character.toString(ASC_CR) + Character.toString(ASC_LF));
                 for (int i = 0; i < contents.length; i++) {
                     if (contents[i].length() >= 4) {

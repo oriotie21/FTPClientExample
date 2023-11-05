@@ -148,8 +148,8 @@ public class FTPSession {
         if (!isInputReady())
             return -1;
         FTPResponse r = request(CMD_CWD, _path);
-
-        if (r.code == STATUS_ACTION_OK) {
+        if(r == null) return -1;
+        else if (r.code == STATUS_ACTION_OK) {
             return 0; // 폴더
         } else if (r.code == STATUS_FILE_NOT_USE) {
             return 1; //파일
@@ -262,6 +262,7 @@ public class FTPSession {
                 }
             }
         });
+        if(r == null) return r;
 
         //성공시
         r.success = true;
@@ -317,7 +318,8 @@ public class FTPSession {
             if (r == null) { //연결 끊긴 경우 연결 종료
                 //System.out.println("전송이 중단되었습니다.");
                 quit();
-            }
+                return null;
+        }
             boolean recvok = false;
             /*
              *<- 이 사이에서 파일 전송이 이루어짐 ->

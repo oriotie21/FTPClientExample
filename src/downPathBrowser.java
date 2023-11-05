@@ -52,12 +52,16 @@ public class downPathBrowser extends JPanel {
                         }
                         if (type == 0) {
                             listModel.addElement("folder - " + line);
-                            session.cd("..");
+                            int cdResult = session.cd("..");
+                            if(cdResult == -1)
+                                JOptionPane.showMessageDialog(null, "Server Response NULL", "Error", JOptionPane.INFORMATION_MESSAGE);
                         }
                         if (type == 1) {
                             listModel.addElement("file - " + line);
                         }
                     }
+                }else {
+                    JOptionPane.showMessageDialog(null, "Server Response NULL", "Error", JOptionPane.INFORMATION_MESSAGE);
                 }
             }
         });
@@ -88,7 +92,9 @@ public class downPathBrowser extends JPanel {
                             }
                             if (type == 0) {
                                 listModel.addElement("folder - " + line);
-                                session.cd("..");
+                                int cdResult = session.cd("..");
+                                if(cdResult == -1)
+                                    JOptionPane.showMessageDialog(null, "Server Response NULL", "Error", JOptionPane.INFORMATION_MESSAGE);
                             }
                             if (type == 1) {
                                 listModel.addElement("file - " + line);
@@ -151,7 +157,9 @@ public class downPathBrowser extends JPanel {
                                     }
                                     if (subType == 0) {
                                         listModel.addElement("folder - " + subLine);
-                                        session.cd("..");
+                                        int cdResult = session.cd("..");
+                                        if(cdResult == -1)
+                                            JOptionPane.showMessageDialog(null, "Server Response NULL", "Error", JOptionPane.ERROR_MESSAGE);
                                     }
                                     if (subType == 1) {
                                         listModel.addElement("file - " + subLine);
