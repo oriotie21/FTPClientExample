@@ -114,6 +114,8 @@ public class downPathBrowser extends JPanel {
                     
                     // 이제 selectedFilePath에 선택한 파일의 전체 경로가 저장되어 있습니다.
                     System.out.println("Selected File Path: " + line);
+                    JTextArea text = downloadFileGUI.downloadPathText;
+                    text.setText(line);
                 }
                 upBroFrame.dispose();
             }

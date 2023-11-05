@@ -13,7 +13,7 @@ import java.nio.file.StandardCopyOption;
 public class uploadFileGUI extends JPanel {
     String upLoadFilePath = null;
     String upLoadFileName = null;
-
+    static JTextArea uploadPathText = new JTextArea();
     public uploadFileGUI() {
         FTPSession session = App.session;
 
@@ -21,7 +21,7 @@ public class uploadFileGUI extends JPanel {
         JPanel upFilePanel = new JPanel();
 
         JLabel uploadPath = new JLabel("Upload Path:");
-        JTextArea uploadPathText = new JTextArea(1, 10);
+        uploadPathText = new JTextArea(1, 10);
         JButton uploadPathBtn = new JButton("browse");
         uploadPathText.disable();
 
@@ -63,7 +63,6 @@ public class uploadFileGUI extends JPanel {
                 uploadPathText.setText("");
                 JFrame upPath = new JFrame("select");
                 upPath.add(new upPathBrowser());
-                uploadPathText.setText("selected");
             }
         });
 

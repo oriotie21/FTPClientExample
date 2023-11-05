@@ -80,7 +80,28 @@ public class upPathBrowser extends JPanel {
         selectButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                UserFTPResponse path = session.pwd();
+                int selectedIndex = fileList.getSelectedIndex();
+                if (selectedIndex >= 0) {
+                    UserFTPResponse path = session.pwd();
+                    String message = path.message;
+                   
+                    // Extract the directory or file name from the selected line
+                    String selectedLine = listModel.getElementAt(selectedIndex);
+                    
+                    // Extract current folder name
+                    int lastIndex = selectedLine.lastIndexOf(" - ");
+                    if (lastIndex != -1) {
+                        String folderName = selectedLine.substring(0, lastIndex);
+                        System.out.println("Current Folder Name: " + folderName);
+                    }
+        
+                    String line = selectedLine.substring(lastIndex + 3);
+                    
+                    // 이제 selectedFilePath에 선택한 파일의 전체 경로가 저장되어 있습니다.
+                    System.out.println("Selected File Path: " + line);
+                    JTextArea text = uploadFileGUI.uploadPathText;
+                    text.setText(line);
+                }
                 upBroFrame.dispose();
             }
         });

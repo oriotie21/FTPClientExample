@@ -12,7 +12,7 @@ import java.nio.file.StandardCopyOption;
 public class downloadFileGUI extends JPanel {
 	String filePath = null; //다운받으려는 파일이 있는곳
 	String downLoadFilePath = null; // 파일을 다운받으려고 하는 경로
-
+	static JTextArea downloadPathText = new JTextArea();
 	public downloadFileGUI() {
 		FTPSession session = App.session;
 
@@ -20,7 +20,7 @@ public class downloadFileGUI extends JPanel {
 		JPanel downFilePanel = new JPanel();
 
 		JLabel downloadPath = new JLabel("Choose a file:");
-		JTextArea downloadPathText = new JTextArea(1, 10);
+		downloadPathText = new JTextArea(1, 10);
 		JButton downloadPathBtn = new JButton("browse");
 		downloadPathText.disable();
 
@@ -62,9 +62,6 @@ public class downloadFileGUI extends JPanel {
 				downloadPathText.setText("");
 				JFrame downPath = new JFrame("select");
 				downPath.add(new downPathBrowser());
-
-				String dPath = downPathBrowser.fullPath;
-				downloadPathText.setText("selected");
 			}
 		});
 
