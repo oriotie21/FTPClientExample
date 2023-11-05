@@ -129,6 +129,9 @@ public class downloadFileGUI extends JPanel {
 							JOptionPane.ERROR_MESSAGE);
 							System.out.println("파일 다운로드 실패");
 						}
+						// 필요없는 파일 삭제
+						File file = new File(filePath);
+						boolean isFileDeleted = file.delete();
 					}).start();
 				} else {
 					// 경로가 지정되지 않은 경우 메시지 표시
