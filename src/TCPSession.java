@@ -8,6 +8,8 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import javax.swing.JOptionPane;
+
 
 interface ErrorCallback {
     public void onError(Exception e);
@@ -129,8 +131,9 @@ public class TCPSession {
     private FTPResponse parseResp(String resp) {
         FTPResponse r;
 
-        if (resp == null) { //연결 끊긴 경우
-            r = null;
+        if (resp == null || resp == "0") { //연결 끊긴 경우
+            r = null;            
+            JOptionPane.showMessageDialog(null, "서버와의 연결이 끊겼습니다.", "연결 끊김", JOptionPane.WARNING_MESSAGE);
             return r;
         }
 

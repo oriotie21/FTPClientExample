@@ -90,7 +90,7 @@ public class App {
                     @Override
                     public void onProgressChanged(int currentByte) {
                         // TODO 진행도 바뀌었을때
-
+                        
                     }
 
                     @Override
