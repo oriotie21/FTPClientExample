@@ -11,12 +11,17 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
 public class uploadFileGUI extends JPanel {
+    // 업로드할 파일경로를 저장할 변수
     String upLoadFilePath = null;
+    // 업로드할 파일이름을 저장할 변수
     String upLoadFileName = null;
     static JTextArea uploadPathText = new JTextArea();
     public uploadFileGUI() {
+
+        // App.java에서 만든 FTPSession session 가져오기
         FTPSession session = App.session;
 
+        // 업로드 창 생성 및 라벨, 버튼 생성
         JFrame upFileFrame = new JFrame("Upload File");
         JPanel upFilePanel = new JPanel();
 
@@ -32,6 +37,7 @@ public class uploadFileGUI extends JPanel {
 
         JButton uploadBtn = new JButton("Upload");
 
+        // 업로드 패널에 붙일 라벨과 버튼 크기 및 위치 지정
         uploadPath.setBounds(10, 10, 80, 20);
         uploadPathText.setBounds(100, 10, 180, 20);
         uploadPathBtn.setBounds(300, 10, 80, 20);
@@ -55,18 +61,21 @@ public class uploadFileGUI extends JPanel {
 
         upFilePanel.add(uploadBtn);
 
-        // 업로드할 서버 디렉토리 선택
+        // 업로드할 경로 선택
+        // upload Path browse 버튼 클릭시 발생 이벤트
         uploadPathBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 // TODO Auto-generated method stub
                 uploadPathText.setText("");
                 JFrame upPath = new JFrame("select");
+                // upPathBrowser 호출
                 upPath.add(new upPathBrowser());
             }
         });
 
         // 내 pc에서 업로드할 파일 선택
+        // choose a file 버튼 클릭시 발생 이벤트
         upChoDirecBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -78,20 +87,21 @@ public class uploadFileGUI extends JPanel {
                 if (returnValue == JFileChooser.APPROVE_OPTION) {
                     File selectedFile = fileChooser.getSelectedFile(); // 선택한 파일 가져오기
 
-                    // Get the selected file's name and path
+                    // 선택한 파일로부터 경로와 이름을 받아옴
                     String selectedFileName = selectedFile.getName();
                     String selectedFilePath = selectedFile.getAbsolutePath();
                     upLoadFilePath = selectedFilePath;
                     upLoadFilePath = upLoadFilePath.replace("\\", "\\\\");
-                    // Set the file name and path in the upDire JTextArea
+                    // upChoDirecText에 선택한 파일경로를 출력함
                     upChoDirecText.setText(upLoadFilePath);
                 } else {
+                    // 파일 선택하지 않았을때 선택됨
                     JOptionPane.showMessageDialog(null, "Load canceled", "Load canceled",
                             JOptionPane.INFORMATION_MESSAGE);
                 }
             }
         });
-        // 업로드하기
+        // 업로드버튼 클릭시 발생 이벤트
         uploadBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -136,6 +146,7 @@ public class uploadFileGUI extends JPanel {
         upFileFrame.setLocationRelativeTo(null);
     }
 
+    // 파일 복사하는 함수 inFilePath 함수를 outFilePath로 복사함
     public static boolean fileCopy(String inFilePath, String outFilePath) {
         try {
             FileInputStream infile = new FileInputStream(inFilePath);

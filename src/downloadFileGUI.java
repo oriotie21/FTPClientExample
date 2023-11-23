@@ -15,8 +15,10 @@ public class downloadFileGUI extends JPanel {
     static JTextArea downloadPathText = new JTextArea();
 
     public downloadFileGUI() {
+        // App.java에서 만든 FTPSession session 가져오기
         FTPSession session = App.session;
 
+        // 다운로드 창 생성 및 라벨, 버튼 생성
         JFrame downFileFrame = new JFrame("Download File");
         JPanel downFilePanel = new JPanel();
 
@@ -32,6 +34,7 @@ public class downloadFileGUI extends JPanel {
 
         JButton downloadBtn = new JButton("Downlaod");
 
+        // 다운로드 패널에 붙일 라벨과 버튼 크기 및 위치 지정
         downloadPath.setBounds(10, 10, 100, 20);
         downloadPathText.setBounds(100, 10, 180, 20);
         downloadPathBtn.setBounds(300, 10, 80, 20);
@@ -62,20 +65,27 @@ public class downloadFileGUI extends JPanel {
                 // TODO Auto-generated method stub
                 downloadPathText.setText("");
                 JFrame downPath = new JFrame("select");
+                // downPathBrowser 호출
                 downPath.add(new downPathBrowser());
             }
         });
 
-        // 내 pc에 어디에 저장할지 선택
+        // 내 PC 어디에 저장할지 선택 버튼 이벤트 리스너
         downChoDirecBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                // 폴더 선택을 위한 파일 선택기 생성
                 JFileChooser fileChooser = new JFileChooser();
+
+                // 폴더 선택 모드로 설정
                 fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY); // 설정을 폴더 선택 모드로 변경
+                
+                // 파일 선택기를 통해 폴더 선택
                 int returnVal = fileChooser.showOpenDialog(downloadFileGUI.this); // OpenDialog를 사용하여 폴더를 선택하도록 함
                 if (returnVal == JFileChooser.APPROVE_OPTION) {
                     File selectedDirectory = fileChooser.getSelectedFile(); // 선택한 폴더
                     downChoDirecText.setText(selectedDirectory.getAbsolutePath()); // 선택한 폴더의 경로를 표시
+                    // downLoadFilePath 변수에 경로 저장
                     downLoadFilePath = downChoDirecText.getText();
                     downLoadFilePath = downLoadFilePath.replace("\\", "\\\\");
                 }
@@ -88,7 +98,7 @@ public class downloadFileGUI extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 // 다운로드 경로와 대상 경로 확인
                 if (downLoadFilePath != null && downloadPathText.getText() != null) {
-
+                    // 다운로드할 파일의 경로 설정
                     filePath = downPathBrowser.fullPath;
                     filePath = filePath.replace("/", "\\\\");
                     // 파일 다운로드
@@ -107,7 +117,7 @@ public class downloadFileGUI extends JPanel {
                             fileCopy(filePath, dest.toString());
                         }
                     });
-
+                    // 다운로드 결과 확인 및 처리
                     if (downloadResponse != null && downloadResponse.success) {
                         // 복사 성공 메시지 출력
                         JOptionPane.showMessageDialog(null, "Download Success", "Download Success",
@@ -133,6 +143,7 @@ public class downloadFileGUI extends JPanel {
         downFileFrame.setLocationRelativeTo(null);
     }
 
+    // 파일 복사하는 함수 inFilePath 함수를 outFilePath로 복사함
     public static boolean fileCopy(String inFilePath, String outFilePath) {
         try {
             FileInputStream infile = new FileInputStream(inFilePath);

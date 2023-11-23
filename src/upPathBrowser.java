@@ -12,6 +12,7 @@ public class upPathBrowser extends JPanel {
     DefaultListModel<String> listModel;
     JList<String> fileList;
 
+    // App.java에서 만든 FTPSession session 가져오기
     FTPSession session = App.session;
     int flag = 0;
 
@@ -34,11 +35,14 @@ public class upPathBrowser extends JPanel {
 
         selectButton.setBounds(280, 220, 100, 20);
 
+        // List Files 버튼 클릭시 발생 이벤트
+        // 최초 서버 파일 경로 기준 파일, 폴더 목록을 보여줌
         listFilesButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 direct = session.pwd();
 
+                // 현재 디렉토리에 있는 모든 파일과 폴더 나열
                 UserFTPResponse response = session.nlst();
 
                 listFilesButton.setEnabled(false);
@@ -46,21 +50,28 @@ public class upPathBrowser extends JPanel {
                     listModel.clear();
                     String[] lines = response.message.split("\r\n");
                     for (String line : lines) {
-                        int type = session.cd(line); // Determine if it's a folder or a file
+                        // 파일인지 폴더인지 판별
+                        int type = session.cd(line);
                         try {
                             Thread.sleep(50); // 0.05초 (50 밀리초) 대기
                         } catch (InterruptedException ex) {
                             ex.printStackTrace();
                         }
+                        // 폴더면 folder-폴더이름 표시
                         if (type == 0) {
                             listModel.addElement("folder - " + line);
                             int cdResult = session.cd("..");
+                            // 
                             if(cdResult == -1){
                                 JOptionPane.showMessageDialog(null, "Server Response NULL", "Error", JOptionPane.ERROR_MESSAGE);
                                 break;
                             }
-                        } else if (type == 1) {
+                        } 
+
+                        // 파일이면 file-파일이름 표시
+                        else if (type == 1) {
                             listModel.addElement("file - " + line);
+
                         }else{
                             JOptionPane.showMessageDialog(null, "Server Response NULL", "Error", JOptionPane.ERROR_MESSAGE);
                             break;
@@ -72,7 +83,8 @@ public class upPathBrowser extends JPanel {
             }
         });
 
-        // Add action listener to the "Go Up" button
+        // Go Up 버튼 클릭시 발생 이벤트
+        // 상위 폴더로 가는 버튼
         upButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -83,18 +95,22 @@ public class upPathBrowser extends JPanel {
                 } catch (InterruptedException ex) {
                     ex.printStackTrace();
                 }
+                // 상위 디렉토리가 있으면
                 if (currentPath != null) {
                     listModel.clear();
                     UserFTPResponse response = session.nlst();
+                    // 서버 응답 정상연결시
                     if (response != null && response.success) {
                         String[] lines = response.message.split("\r\n");
                         for (String line : lines) {
+                            // 파일인지 폴더인지 구별해서
                             int type = session.cd(line); // Determine if it's a folder or a file
                             try {
                                 Thread.sleep(50); // 0.05초 (50 밀리초) 대기
                             } catch (InterruptedException ex) {
                                 ex.printStackTrace();
                             }
+                            // 폴더면 폴더 출력
                             if (type == 0) {
                                 listModel.addElement("folder - " + line);
                                 int cdResult = session.cd("..");
@@ -102,23 +118,31 @@ public class upPathBrowser extends JPanel {
                                     JOptionPane.showMessageDialog(null, "Server Response NULL", "Error", JOptionPane.ERROR_MESSAGE);
                                     break;
                                 }
-                            } else if (type == 1) {
+                            } 
+                            // 파일이면 파일 출력
+                            else if (type == 1) {
                                 listModel.addElement("file - " + line);
-                            }else{
+                            }
+                            // 서버응답 없을때 에러 출력
+                            else{
                                 JOptionPane.showMessageDialog(null, "Server Response NULL", "Error", JOptionPane.ERROR_MESSAGE);
                                 break;
                             }
                         }
-                    }else{
+                    }
+                    // 서버 연결 끊겼을시
+                    else{
                         JOptionPane.showMessageDialog(null, "Server Response NULL", "Error", JOptionPane.ERROR_MESSAGE);
                     }
-                } else {
+                } 
+                // 상위 디렉토리가 없으며
+                else {
                     JOptionPane.showMessageDialog(null, "상위 폴더가 존재하지 않습니다.", "에러", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
 
-        // Add action listener to the "Select" button
+        // Select 버튼 클릭시 발생 이벤트
         selectButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -136,28 +160,35 @@ public class upPathBrowser extends JPanel {
                         extractedValue = message.substring(start + 1, end);
                     }
                 }
+                // 추출한 문자열로 textarea에 값 삽입
                 text.setText(extractedValue);
                 upBroFrame.dispose();
             }
         });
 
-        // Add mouse listener to the file list
+        // 폴더 클릭시 발생 이벤트
         fileList.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
+                // 더블 클릭시
                 if (e.getClickCount() == 2) {
                     int selectedIndex = fileList.getSelectedIndex();
+                    // 유효한 항목이 선택되었는지 확인
                     if (selectedIndex >= 0) {
+                        // 리스트 모델에서 선택한 라인 가져오기
                         String selectedLine = listModel.getElementAt(selectedIndex);
 
-                        // Extract the directory or file name from the selected line
+                        // 선택한 라인에서 디렉토리 또는 파일 이름 추출
                         String line = selectedLine.substring(selectedLine.lastIndexOf(" - ") + 3);
                         int type = session.cd(line); // Determine if it's a folder or a file
+                        // 폴더인지 확인
                         if (type == 0) {
-                            // If it's a folder, list its contents and update the UI
+                            // 폴더의 내용을 나열하고 UI 업데이트
                             UserFTPResponse response = session.nlst();
                             if (response != null && response.success) {
+                                // 기존의 리스트 모델 지우기
                                 listModel.clear();
+                                // 응답 메시지를 라인으로 분할
                                 String[] lines = response.message.split("\r\n");
                                 for (String subLine : lines) {
                                     int subType = session.cd(subLine);
@@ -166,22 +197,33 @@ public class upPathBrowser extends JPanel {
                                     } catch (InterruptedException ex) {
                                         ex.printStackTrace();
                                     }
+                                    // 폴더 항목이면
                                     if (subType == 0) {
+                                        // 폴더 항목을 리스트 모델에 추가
                                         listModel.addElement("folder - " + subLine);
+                                        // 현재 디렉토리를 상위 디렉토리로 변경
                                         int cdResult = session.cd("..");
                                         if(cdResult == -1){
+                                            // 디렉토리 변경 실패시 오류 메시지 표시
                                             JOptionPane.showMessageDialog(null, "Server Response NULL", "Error", JOptionPane.ERROR_MESSAGE);
                                             break;
                                         }
-                                    } else if (subType == 1) {
+                                    } 
+                                    // 파일인지 확인
+                                    else if (subType == 1) {
+                                        // 파일 항목을 리스트 모델에 추가
                                         listModel.addElement("file - " + subLine);
-                                    }else{
+                                    }
+                                    // 예상치 못한 응답 처리
+                                    else{
                                         JOptionPane.showMessageDialog(null, "Server Response NULL", "Error", JOptionPane.ERROR_MESSAGE);
                                         break;
                                     }
                                 }
                             }
-                        }else{
+                        }
+                        // 폴더가 아닐시 에러처리
+                        else{
                             JOptionPane.showMessageDialog(null, "Server Response NULL", "Error", JOptionPane.ERROR_MESSAGE);
                         }
                     }
