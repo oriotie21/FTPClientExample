@@ -55,7 +55,7 @@ public class FTPSession {
 
     static String ENCODE_TYPE = "UTF8 ON";
 
-    int PORT_INC_BASE = 19000; //지정할 data port의 시작 번호
+    int PORT_INC_BASE = 19000; //data port 값의 최소 번호
     int PORT_INC_CNT = 1; //연결 시 마다 지정할 data port 증가 수
     int PORT_MAX = 65000; //max is 65535
 
@@ -110,7 +110,7 @@ public class FTPSession {
         return loginSuccess;
     }
 
-    String cwd(String _path) {
+    String cwd(String _path) { //change working directory
         if (!isInputReady())
             return null;
         FTPResponse r = request(CMD_CWD, _path);
@@ -122,7 +122,7 @@ public class FTPSession {
         }
     }
 
-    UserFTPResponse pwd() {
+    UserFTPResponse pwd() { //현재 디렉토리 얻기
         if (!isInputReady())
             return null;
         UserFTPResponse result;
@@ -131,12 +131,15 @@ public class FTPSession {
             result = new UserFTPResponse(false, r.code, r.message);
             return result;
         }
-        String path = r.message.split("\"")[1];
+
+        //RFC 문서에 따르면 current working directory는 큰따옴표로 둘러싸여 있다고함.
+        //큰따옴표 안에 있는 문자 추출하기
+        String path = r.message.split("\"")[1];         
         result = new UserFTPResponse(true, r.code, path);
         return result;
     }
 
-    void quit() {
+    void quit() { //연결 종료
         if (!isInputReady())
             return;
         tcpSession.sendCmd(CMD_QUIT, "");
@@ -144,7 +147,7 @@ public class FTPSession {
         connected = false;
     }
 
-    int cd(String _path) {
+    int cd(String _path) { //cwd() + 디렉토리가 맞는지 리턴
         if (!isInputReady())
             return -1;
         FTPResponse r = request(CMD_CWD, _path);
@@ -159,7 +162,7 @@ public class FTPSession {
     }
 
 
-    UserFTPResponse setPort(int p) {
+    UserFTPResponse setPort(int p) { //PORT 명령을 통해 클라이언트의 데이터 포트 정보를 서버에 전달
         boolean r = true;
         String arg = tcpSession.getMyIP().replace('.', ',');
         arg = arg + ',' + (p / 256);
@@ -171,11 +174,11 @@ public class FTPSession {
 
     }
 
-    UserFTPResponse retrieveRaw(OutputStream outf, FileEventListener listener) {
+    UserFTPResponse retrieveRaw(OutputStream outf, FileEventListener listener) { //다운받은 파일을 일반 stream에 전달
         return retrieve("", outf, listener);
     }
 
-    UserFTPResponse retrieveFile(String fname, FileEventListener listener) {
+    UserFTPResponse retrieveFile(String fname, FileEventListener listener) { //다운받은 파일을 파일스트림에 전달하여 파일로 저장
 
         File file = new File(fname);
         if (file.exists()) {
@@ -228,14 +231,14 @@ public class FTPSession {
         return r;
     }
 
-    UserFTPResponse nlst() {
+    UserFTPResponse nlst() { //ls 명령과 비슷, current working directory 내 파일 및 폴더 목록 나열
         if (!isInputReady()) {
             return null;
         }
 
         int uport = getDataPort();
         UserFTPResponse r;
-        r = setPort(uport);
+        r = setPort(uport); //데이터포트 전달
         if (!r.success)
             return r;
 
@@ -310,21 +313,18 @@ public class FTPSession {
         }
         return r;
     }
-
+    //데이터 포트로의 송수신을 담당하는 함수
     UserFTPResponse waitForTrasfer(TCPServerSession session, String cmd, String fname, FileEventListener listener) {
         FTPResponse r = request(cmd, fname);
         if (r.code == STATUS_TRANSFER_READY || r.code == STATUS_ALREADY_OPENED) {
-            r = tcpSession.getResponse();
+            r = tcpSession.getResponse(); //getResponse에서 리턴값이 돌아오면 전송이 정상이든 비정상이든 끝난것
             if (r == null) { //연결 끊긴 경우 연결 종료
                 //System.out.println("전송이 중단되었습니다.");
                 quit();
                 return null;
         }
             boolean recvok = false;
-            /*
-             *<- 이 사이에서 파일 전송이 이루어짐 ->
-             * 파일 다운로드 완료 시 응답코드 리턴
-             */
+            
             session.setEOF(true);
             if (r.code == STATUS_TRANSFER_OK) {
                 System.out.println("transfer success");
@@ -338,14 +338,14 @@ public class FTPSession {
         }
     }
 
-    boolean isInputReady() {
+    boolean isInputReady() { //세션 살아있으면서 전송중이 아니라면 커맨드 받을 준비 완료 
         return isAlive() && !isTransfering();
     }
 
     boolean isTransfering() {
         boolean transferInProgress = false;
         if (dataSession != null) {
-            transferInProgress = !dataSession.isTransferFinished();
+            transferInProgress = !dataSession.isTransferFinished(); //데이터 세션으로부터 전송 완료여부 가져옴
             if (!transferInProgress)
                 dataSession = null;
 
@@ -353,7 +353,7 @@ public class FTPSession {
         return transferInProgress;
     }
 
-    FTPResponse request(String cmd, String arg) {
+    FTPResponse request(String cmd, String arg) { //커멘드 보내는 함수
         tcpSession.sendCmd(cmd, arg);
         return tcpSession.getResponse();
     }
@@ -362,7 +362,7 @@ public class FTPSession {
         return tcpSession.isAlive();
     }
 
-    private int getDataPort() {
+    private int getDataPort() { // PORT_INC_BASE부터 PORT_MAX 사이 임의의 번호 리턴
         int randPort = new Random().nextInt(PORT_MAX - PORT_INC_BASE) + PORT_INC_BASE;
         return randPort;
     }
