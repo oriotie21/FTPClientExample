@@ -58,7 +58,7 @@ public class TCPSession {
         sendRaw(content.getBytes());
     }
 
-    void sendRaw(byte[] content) {
+    void sendRaw(byte[] content) { //소켓으로 데이터 전송
         try {
             isTransfering = true;
             outStream.write(content);
@@ -69,7 +69,7 @@ public class TCPSession {
         isTransfering = false;
     }
 
-    void asyncSendRaw(byte[] content) {
+    void asyncSendRaw(byte[] content) { //별도의 스레드에서 데이터 전송
         Thread sendThread = new Thread() {
             public void run() {
                 sendRaw(content);
@@ -87,6 +87,8 @@ public class TCPSession {
                 String contents[] = content.split(Character.toString(ASC_CR) + Character.toString(ASC_LF));
                 for (int i = 0; i < contents.length; i++) {
                     if (contents[i].length() >= 4) {
+                        // 응답메시지의 마지막줄 구조는 NNN<SP>[Message]
+                        //첫 3글자가 숫자고 네번째 글자가 공백일경우 마지막 문장으로 인식
                         if (Common.isNumeric(contents[i].substring(0, 3)) && contents[i].charAt(3) == ASC_SP) {
                             endOfResponse = true;
                             content = contents[i];
@@ -128,7 +130,7 @@ public class TCPSession {
     }
 
 
-    private FTPResponse parseResp(String resp) {
+    private FTPResponse parseResp(String resp) { //응답메시지 파싱 후 FTPResponse 클래스로 변환
         FTPResponse r;
 
         if (resp == null || resp == "0") { //연결 끊긴 경우
@@ -138,14 +140,14 @@ public class TCPSession {
         }
 
         boolean startsWithNumber = true;
-        for (int i = 0; i < Math.min(3, resp.length()); i++) {
+        for (int i = 0; i < Math.min(3, resp.length()); i++) { //첫 세자리가 숫자인지 확인, 유효한 응답인지 검증용
             if (!Character.isDigit(resp.charAt(i))) {
                 startsWithNumber = false;
                 break;
             }
         }
 
-        if (startsWithNumber) {
+        if (startsWithNumber) { //유효한 응답이면, 응답코드 응답메시지 구분해서 클래스에 저장
             int code = Integer.parseInt(resp.substring(0, 3));
             String message = resp.substring(3 + 1);
             r = new FTPResponse(code, message);

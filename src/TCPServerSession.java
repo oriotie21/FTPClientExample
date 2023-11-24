@@ -27,16 +27,16 @@ public class TCPServerSession extends Thread {
         fileEventListener = _listener;
     }
 
-    void saveBytesToFile() {
+    void saveBytesToFile() { //스트림에 바이트 쓰기(반드시 파일일 필요 없음)
         byte[] buf = new byte[512];
         int rbytes = 0;
         int bytesTotal = 0;
         try {
             isTransfering = true;
-            while (!eof || getDataSocketInputStream().available() > 0) {
-                rbytes = getDataSocketInputStream().read(buf);
+            while (!eof || getDataSocketInputStream().available() > 0) { //전송 완료메시지 안받았고, 버퍼에 데이터가 남아있을때
+                rbytes = getDataSocketInputStream().read(buf); //소켓스트림->버퍼
                 if (rbytes > 0) {
-                    outf.write(buf, 0, rbytes);
+                    outf.write(buf, 0, rbytes); //버퍼->내부스트림
                     bytesTotal += rbytes;
                     if (fileEventListener != null)
                         fileEventListener.onProgressChanged(bytesTotal);
@@ -46,6 +46,7 @@ public class TCPServerSession extends Thread {
         } catch (Exception e) {
             errorCallback.onError(e);
         }
+        //여기서부터는 다운로드 완료 후 실행되는 코드
         isTransfering = false;
         if (fileEventListener != null)
             fileEventListener.onProgressFinished();
@@ -71,16 +72,16 @@ public class TCPServerSession extends Thread {
             //inputstream 고갈 전까지 쓰기
             isTransfering = true;
             while (inf.available() > 0) {
-                wbytes = inf.read(buf);
-                oStream.write(buf, 0, wbytes);
+                wbytes = inf.read(buf); //내부스트림 -> 버퍼
+                oStream.write(buf, 0, wbytes); //버퍼 -> 소켓스트림
                 totalBytes += wbytes;
                 if (fileEventListener != null)
                     fileEventListener.onProgressChanged(totalBytes);
             }
             //소켓 닫아서 FIN 패킷 보내기
             isTransfering = false;
-            inf.close();
-            closeDataSocket();
+            inf.close(); //내부스트림 닫기
+            closeDataSocket(); //소켓스트림 닫기
             fileEventListener.onProgressFinished();
         } catch (IOException e) {
             // TODO Auto-generated catch block
@@ -93,6 +94,7 @@ public class TCPServerSession extends Thread {
     public void run() {
 
         listen();
+        //Inputstream, OutputStream 구별은 생성자 오버로딩으로 구현
         if (inf == null && outf != null) //매개변수가 OutputStream일때
             saveBytesToFile();
         else if (outf == null && inf != null) //매개변수가 InputStream일때
