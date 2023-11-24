@@ -143,7 +143,7 @@ public class downloadFileGUI extends JPanel {
         downFileFrame.setLocationRelativeTo(null);
     }
 
-    // 파일 복사하는 함수 inFilePath 함수를 outFilePath로 복사함
+    // 파일 복사하는 함수: inFilePath의 파일을 outFilePath로 복사
     public static boolean fileCopy(String inFilePath, String outFilePath) {
         try {
             FileInputStream infile = new FileInputStream(inFilePath);

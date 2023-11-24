@@ -50,7 +50,7 @@ public class upPathBrowser extends JPanel {
                     listModel.clear();
                     String[] lines = response.message.split("\r\n");
                     for (String line : lines) {
-                        // 파일인지 폴더인지 판별
+                        // cd 명령어의 성공 여부로 파일인지 폴더인지 판별
                         int type = session.cd(line);
                         try {
                             Thread.sleep(50); // 0.05초 (50 밀리초) 대기

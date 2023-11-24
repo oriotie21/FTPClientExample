@@ -181,7 +181,7 @@ public class FTPSession {
     UserFTPResponse retrieveFile(String fname, FileEventListener listener) { //다운받은 파일을 파일스트림에 전달하여 파일로 저장
 
         File file = new File(fname);
-        if (file.exists()) {
+        if (file.exists()) { // 같은 이름의 파일이 존재하면 삭제(덮어쓰기 위함)
             file.delete();
         }
 
@@ -200,7 +200,7 @@ public class FTPSession {
             oStream = null;
             e.printStackTrace();
         }
-        return retrieve(fname, oStream, listener);
+        return retrieve(fname, oStream, listener); // RETR
 
 
     }
@@ -231,14 +231,17 @@ public class FTPSession {
         return r;
     }
 
-    UserFTPResponse nlst() { //ls 명령과 비슷, current working directory 내 파일 및 폴더 목록 나열
+    // NLST: ls 명령과 비슷, current working directory 내 파일 및 폴더 목록 나열
+    // NLST와 비슷한 LIST: 명령은 자세한 정보를 포함한 정보 return
+    // 이 코드에서는 NLST 사용
+    UserFTPResponse nlst() {
         if (!isInputReady()) {
             return null;
         }
 
-        int uport = getDataPort();
+        int uport = getDataPort(); // 데이터 포트
         UserFTPResponse r;
-        r = setPort(uport); //데이터포트 전달
+        r = setPort(uport); //데이터 포트 전달
         if (!r.success)
             return r;
 
@@ -246,7 +249,7 @@ public class FTPSession {
         ByteArrayOutputStream ous = new ByteArrayOutputStream();
 
         dataSession = new TCPServerSession(uport, ous, errorCallback, fileEventListener);
-        dataSession.nlst();
+        dataSession.nlst(); // NLST
         final String[] outputStr = {""};
         r = waitForTrasfer(dataSession, CMD_NLST, "", new FileEventListener() {
             @Override
@@ -256,6 +259,7 @@ public class FTPSession {
 
             @Override
             public void onProgressFinished() {
+                // 데이터 전송이 끝난 후 실행되는 코드
                 output[0] = ous.toByteArray();
                 try {
                     outputStr[0] = new String(output[0], "UTF-8");
@@ -265,9 +269,10 @@ public class FTPSession {
                 }
             }
         });
+        // 실패시
         if(r == null) return r;
 
-        //성공시
+        // 성공시
         r.success = true;
         r.code = STATUS_TRANSFER_OK;
         r.message = outputStr[0];

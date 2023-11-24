@@ -74,7 +74,7 @@ public class App {
 
         loginPanel.add(loginBtn);
 
-        // tab 누르면 다음으로 넘어가도록 설정
+        // Tab(다음칸) 또는 Shift+Tab(이전칸) 사용 가능하도록 설정
         setFocusTraversalKeys(hostText, portText);
         setFocusTraversalKeys(portText, userText);
         setFocusTraversalKeys(userText, pwText);
@@ -149,7 +149,7 @@ public class App {
 
     }
 
-    // 입력 창에서 tab누를 시 다음 입력 창으로 가게하는 함수
+    // 로그인 창에서 Tab(다음칸) 또는 Shift+Tab(이전칸) 사용 가능하게 설정하는 함수
     private static void setFocusTraversalKeys(JComponent fromComponent, JComponent toComponent) {
         Set<AWTKeyStroke> forwardKeys = new HashSet<>(fromComponent.getFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS));
         forwardKeys.add(KeyStroke.getKeyStroke("TAB"));
