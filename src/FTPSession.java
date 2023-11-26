@@ -162,11 +162,11 @@ public class FTPSession {
     }
 
 
-    UserFTPResponse setPort(int p) { //PORT 명령을 통해 클라이언트의 데이터 포트 정보를 서버에 전달
+    UserFTPResponse setPort(int port) { //PORT 명령을 통해 클라이언트의 데이터 포트 정보를 서버에 전달
         boolean r = true;
         String arg = tcpSession.getMyIP().replace('.', ',');
-        arg = arg + ',' + (p / 256);
-        arg = arg + ',' + (p % 256);
+        arg = arg + ',' + (port / 256);
+        arg = arg + ',' + (port % 256);
         FTPResponse res = request(CMD_PORT, arg);
         if (res.code != 200)
             r = false;
