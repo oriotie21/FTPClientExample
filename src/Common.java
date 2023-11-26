@@ -1,4 +1,5 @@
 public class Common {
+    //입력한 문자열이 숫자인지 판별
     public static boolean isNumeric(String strNum) {
         if (strNum == null) {
             return false;
